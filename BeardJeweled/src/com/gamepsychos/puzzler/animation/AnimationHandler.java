@@ -11,6 +11,7 @@ import android.animation.Animator.AnimatorListener;
 import android.animation.ValueAnimator;
 import android.animation.ValueAnimator.AnimatorUpdateListener;
 
+import com.gamepsychos.puzzler.board.Board.BoardMessage;
 import com.gamepsychos.puzzler.board.Change;
 import com.gamepsychos.puzzler.board.view.BoardView;
 import com.gamepsychos.util.observer.Observer;
@@ -21,7 +22,7 @@ import com.gamepsychos.util.observer.Observer;
  *
  */
 public class AnimationHandler implements AnimatorUpdateListener,
-		AnimatorListener, Observer<Set<Change>> {
+		AnimatorListener, Observer<BoardMessage> {
 	
 	private final BoardView view;
 	private final Deque<Set<Change>> toAnimate;
@@ -81,8 +82,9 @@ public class AnimationHandler implements AnimatorUpdateListener,
 	}
 	
 	@Override
-	public void update(Set<Change> message) {
-		toAnimate.add(message);
+	public void update(BoardMessage message) {
+		if(message.getChanges().isEmpty()) return;
+		toAnimate.add(message.getChanges());
 		animate();
 	}
 	

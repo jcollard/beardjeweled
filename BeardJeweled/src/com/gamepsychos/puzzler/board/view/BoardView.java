@@ -36,6 +36,7 @@ public class BoardView extends View {
 	private final Map<Piece, DisplayablePiece> displayedPieces;
 	private BoardController controller;
 	private static final int BACKGROUND_SIZE = 100;
+	private DisplayLocation offset = new DisplayLocation(0,0);
 	private final Bitmap background;
 	
 	public BoardView(Context context){
@@ -62,8 +63,8 @@ public class BoardView extends View {
 		if(animationHandler.isBusy())
 			return false;
 
-		float left = event.getX();
-		float top = event.getY();
+		float left = event.getX() - offset.getLeft();
+		float top = event.getY() - offset.getTop();
 		switch(event.getAction()){
 		case MotionEvent.ACTION_DOWN:
 			return controller.onTouch(left, top);
@@ -78,7 +79,6 @@ public class BoardView extends View {
 	@Override
 	protected void onDraw(Canvas canvas) {
 		super.onDraw(canvas);
-		
 		int width = getWidth();
 		int height = getHeight();
 
@@ -89,7 +89,7 @@ public class BoardView extends View {
 		
 		//Pieces
 		for(DisplayablePiece p : displayedPieces.values())
-			p.display(canvas, paint);
+			p.display(canvas, paint, offset);
 		
 		
 	}
@@ -122,6 +122,11 @@ public class BoardView extends View {
 		int w = width/board.getColumns();
 		int r = height/board.getRows();
 		int size = Math.min(w, r);
+		int space_width = size*board.getColumns();
+		int space_height = size*board.getRows();
+		offset = new DisplayLocation((width-space_width)/2f, (height-space_height)/2f);
+		if(size < 1)
+			return;
 		PieceResources.setSize(size);
 	}
 	

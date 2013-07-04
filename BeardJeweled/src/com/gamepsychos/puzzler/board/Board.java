@@ -2,8 +2,10 @@ package com.gamepsychos.puzzler.board;
 
 import java.util.Set;
 
+import com.gamepsychos.puzzler.board.Board.BoardMessage;
 import com.gamepsychos.puzzler.move.Move;
 import com.gamepsychos.puzzler.move.MoveFactory;
+import com.gamepsychos.puzzler.move.MoveResult;
 import com.gamepsychos.puzzler.piece.Piece;
 import com.gamepsychos.util.observer.Observable;
 
@@ -12,7 +14,15 @@ import com.gamepsychos.util.observer.Observable;
  * @author jcollard
  *
  */
-public interface Board extends Observable<Set<Change>> {
+public interface Board extends Observable<BoardMessage> {
+	
+	public interface BoardMessage {
+		
+		public Set<Change> getChanges();
+		
+		public Set<MoveResult> getResults();		
+		
+	}
 
 	/**
 	 * Returns the piece stored at {@code loc}. If the loc is not on the board,

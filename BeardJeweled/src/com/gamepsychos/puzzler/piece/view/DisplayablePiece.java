@@ -41,12 +41,12 @@ public class DisplayablePiece implements Displayable, Animateable {
 	}
 	
 	@Override
-	public void display(Canvas canvas, Paint paint) {
+	public void display(Canvas canvas, Paint paint, DisplayLocation offset) {
 		if(canvas == null || paint == null)
 			throw new NullPointerException();
 		Bitmap bitmap = PieceResources.getBitmap(model);
-		float left = displayLocation.getLeft();
-		float top = displayLocation.getTop();
+		float left = displayLocation.getLeft() + offset.getLeft();
+		float top = displayLocation.getTop() + offset.getTop();
 		canvas.drawBitmap(bitmap, left, top, paint);
 	}
 

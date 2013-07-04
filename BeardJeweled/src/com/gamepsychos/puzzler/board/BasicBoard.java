@@ -40,14 +40,14 @@ public class BasicBoard implements Board {
 	private final MoveFactory moveFactory;
 
 	/**
-	 * Creates a {@code BasicBoard} that is 6x6 and specifies the
+	 * Creates a {@code BasicBoard} that is 7x6 and specifies the
 	 * {@link PieceFactory} to use to generate {@link Piece}s
 	 * 
 	 * @param pieceFactory
 	 *            the {@link PieceFactory} to generate {@link Pieces}
 	 */
 	public BasicBoard(PieceFactory pieceFactory) {
-		this(pieceFactory, 6, 6);
+		this(pieceFactory, 7, 6);
 
 	}
 
@@ -126,7 +126,7 @@ public class BasicBoard implements Board {
 		for(Change c : changes){
 			message.add(c);
 		}
-		delegate.notifyObservers(message);
+		delegate.notifyObservers(new ChangeBoardMessage(message));
 	}
 	
 	private final MoveResult clearBoard(){
@@ -163,7 +163,7 @@ public class BasicBoard implements Board {
 			Change drop = new Change(d.getPiece(), type, ls);
 			changes.add(drop);
 		}
-		delegate.notifyObservers(changes);
+		delegate.notifyObservers(new ChangeBoardMessage(changes));
 		
 		return new BasicMoveResult(locations, new FollowUpMove(), drops, pieces);
 	}
@@ -196,10 +196,10 @@ public class BasicBoard implements Board {
 	}
 
 	// Observable Methods
-	private final BasicObservable<Set<Change>> delegate = new BasicObservable<Set<Change>>();
+	private final BasicObservable<BoardMessage> delegate = new BasicObservable<BoardMessage>();
 
 	@Override
-	public boolean register(Observer<Set<Change>> observer) {
+	public boolean register(Observer<BoardMessage> observer) {
 		return delegate.register(observer);
 	}
 
@@ -243,8 +243,11 @@ public class BasicBoard implements Board {
 
 		@Override
 		public MoveResult move() {
-			swapPieces(a, b);			
-			return clearBoard();
+			swapPieces(a, b);
+			MoveResult result = clearBoard();
+			Set<MoveResult> singleton = Collections.singleton(result);
+			delegate.notifyObservers(new MoveResultBoardMessage(singleton));
+			return result;
 		}
 
 	}
@@ -253,7 +256,10 @@ public class BasicBoard implements Board {
 
 		@Override
 		public MoveResult move() {
-			return clearBoard();
+			MoveResult result = clearBoard();
+			Set<MoveResult> singleton = Collections.singleton(result);
+			delegate.notifyObservers(new MoveResultBoardMessage(singleton));
+			return result;
 		}
 
 	}
@@ -300,6 +306,48 @@ public class BasicBoard implements Board {
 			return destroyed;
 		}
 
+	}
+	
+	private static final class ChangeBoardMessage implements BoardMessage {
+
+		private final Set<Change> changes;
+		
+		private ChangeBoardMessage(Set<Change> changes){
+			assert changes != null;
+			this.changes = Collections.unmodifiableSet(changes);
+		}
+		
+		@Override
+		public Set<Change> getChanges() {
+			return changes;
+		}
+
+		@Override
+		public Set<MoveResult> getResults() {
+			return Collections.emptySet();
+		}
+		
+	}
+	
+	private static final class MoveResultBoardMessage implements BoardMessage {
+
+		private final Set<MoveResult> results;
+		
+		private MoveResultBoardMessage(Set<MoveResult> results){
+			assert results != null;
+			this.results = Collections.unmodifiableSet(results);
+		}
+		
+		@Override
+		public Set<Change> getChanges() {
+			return Collections.emptySet();
+		}
+
+		@Override
+		public Set<MoveResult> getResults() {
+			return results;
+		}
+		
 	}
 
 }
