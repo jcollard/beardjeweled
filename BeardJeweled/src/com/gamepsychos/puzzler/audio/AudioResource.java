@@ -1,5 +1,8 @@
 package com.gamepsychos.puzzler.audio;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import com.gamepsychos.puzzler.R;
 
 import android.content.Context;
@@ -12,6 +15,12 @@ import android.media.MediaPlayer.OnCompletionListener;
  *
  */
 public class AudioResource {
+	
+	private static final Map<Context, AudioResource> audioLookup;
+	
+	static {
+		audioLookup = new HashMap<Context, AudioResource>();
+	}
 	
 	public static enum Music {
 		DRUM_GROOVE(R.raw.drumgroove_loop),
@@ -45,6 +54,11 @@ public class AudioResource {
 	private float sfx_volume = 1.0f;
 	
 	public static AudioResource getInstance(Context context){
+		AudioResource resource = audioLookup.get(context);
+		if(resource == null){
+			resource = new AudioResource(context);
+			audioLookup.put(context, resource);
+		}
 		return new AudioResource(context);
 	}
 	
