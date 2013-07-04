@@ -1,7 +1,7 @@
 package com.gamepsychos.puzzler.board;
 
 /**
- * A {@code Location} describes a position on a {@link DisplayableBoard}
+ * A {@code Location} describes a position on a {@link Board}
  * @author jcollard
  *
  */

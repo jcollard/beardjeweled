@@ -1,5 +1,6 @@
 package com.gamepsychos.puzzler.piece;
 
+
 /**
  * A PieceFactory is used to generate new {@link Piece}s.
  * @author jcollard

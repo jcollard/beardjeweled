@@ -37,14 +37,14 @@ public class BasicBoard implements Board {
 	private final MoveFactory moveFactory;
 
 	/**
-	 * Creates a {@code BasicBoard} that is 8x8 and specifies the
+	 * Creates a {@code BasicBoard} that is 6x6 and specifies the
 	 * {@link PieceFactory} to use to generate {@link Piece}s
 	 * 
 	 * @param pieceFactory
 	 *            the {@link PieceFactory} to generate {@link Pieces}
 	 */
 	public BasicBoard(PieceFactory pieceFactory) {
-		this(pieceFactory, 8, 6);
+		this(pieceFactory, 6, 6);
 
 	}
 
@@ -107,9 +107,23 @@ public class BasicBoard implements Board {
 	}
 
 	private final void swapPieces(Location a, Location b) {
+		Change change0 = new Change(piece[a.getRow()][a.getCol()], a, b, false, false);
+		Change change1 = new Change(piece[b.getRow()][b.getCol()], b, a, false, false);
+		
 		Piece temp = piece[a.getRow()][a.getCol()];
 		piece[a.getRow()][a.getCol()] = piece[b.getRow()][b.getCol()];
 		piece[b.getRow()][b.getCol()] = temp;
+		
+		notifyChanges(change0, change1);
+	}
+	
+	private final void notifyChanges(Change ... changes){
+		assert changes != null;
+		Set<Change> message = new HashSet<Change>();
+		for(Change c : changes){
+			message.add(c);
+		}
+		delegate.notifyObservers(message);
 	}
 	
 	private final MoveResult clearBoard(){
@@ -123,14 +137,26 @@ public class BasicBoard implements Board {
 			Set<Drop> drops = Collections.emptySet();
 			return new BasicMoveResult(locations, null, drops, pieces);
 		}
-
+		
+		Set<Change> destroyed = new HashSet<Change>();
 		for (Location l : locations){
-			pieces.add(piece[l.getRow()][l.getCol()]);
+			Piece p = piece[l.getRow()][l.getCol()];
+			pieces.add(p);
+			Change destroy = new Change(p, l, l, true, false);
 			piece[l.getRow()][l.getCol()] = null;
+			destroyed.add(destroy);
 		}
+		delegate.notifyObservers(destroyed);
 
 		final Set<Drop> drops = findDrops();
-
+		Set<Change> dropped = new HashSet<Change>();
+		for(Drop d : drops){
+			boolean created = !Boards.inBounds(this, d.getStart());
+			Change drop = new Change(d.getPiece(), d.getStart(), d.getEnd(), false, created);
+			dropped.add(drop);
+		}
+		delegate.notifyObservers(dropped);
+		
 		return new BasicMoveResult(locations, new FollowUpMove(), drops, pieces);
 	}
 
@@ -162,10 +188,10 @@ public class BasicBoard implements Board {
 	}
 
 	// Observable Methods
-	private final BasicObservable<Board> delegate = new BasicObservable<Board>();
+	private final BasicObservable<Set<Change>> delegate = new BasicObservable<Set<Change>>();
 
 	@Override
-	public boolean register(Observer<Board> observer) {
+	public boolean register(Observer<Set<Change>> observer) {
 		return delegate.register(observer);
 	}
 
@@ -209,7 +235,7 @@ public class BasicBoard implements Board {
 
 		@Override
 		public MoveResult move() {
-			swapPieces(a, b);
+			swapPieces(a, b);			
 			return clearBoard();
 		}
 

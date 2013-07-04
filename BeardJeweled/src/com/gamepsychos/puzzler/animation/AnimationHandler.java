@@ -1,132 +1,107 @@
 package com.gamepsychos.puzzler.animation;
 
 import java.util.Collections;
+import java.util.Deque;
 import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.LinkedBlockingDeque;
 
 import android.animation.Animator;
 import android.animation.Animator.AnimatorListener;
 import android.animation.ValueAnimator;
 import android.animation.ValueAnimator.AnimatorUpdateListener;
-import android.view.View;
+
+import com.gamepsychos.puzzler.board.Change;
+import com.gamepsychos.puzzler.board.view.BoardView;
+import com.gamepsychos.puzzler.piece.view.DisplayLocation;
+import com.gamepsychos.puzzler.piece.view.DisplayablePiece;
+import com.gamepsychos.puzzler.piece.view.PieceResources;
+import com.gamepsychos.util.observer.Observer;
 
 public class AnimationHandler implements AnimatorUpdateListener,
-		AnimatorListener {
-
-	private final View view;
-	private final List<Animation> animations;
-	private final Map<Animator, Animation> lookup;
-	private boolean wait;
-
-	public AnimationHandler(View view) {
-		this.view = view;
-		this.animations = Collections
-				.synchronizedList(new LinkedList<Animation>());
-		this.lookup = new ConcurrentHashMap<Animator, AnimationHandler.Animation>();
-		this.wait = false;
-	}
-
-	public boolean isBusy() {
-		return !animations.isEmpty() || wait;
+		AnimatorListener, Observer<Set<Change>> {
+	
+	private final BoardView view;
+	private final Deque<Set<Change>> toAnimate;
+	private final Set<Animator> waiting;
+	
+	public AnimationHandler(BoardView view){
+		if(view == null)
+			throw new NullPointerException();
+		this.view = view;		
+		this.toAnimate = new LinkedBlockingDeque<Set<Change>>();
+		this.waiting  = Collections.synchronizedSet(new HashSet<Animator>());
 	}
 	
-	public void animateAndWait(final ValueAnimator animation){
-		animate(new Animation() {
-			
-			@Override
-			public void onCompletion() {}
-			
-			@Override
-			public Set<ValueAnimator> getAnimators() {
-				Set<ValueAnimator> animations = new HashSet<ValueAnimator>();
-				animations.add(animation);
-				return animations;
-			}
-			
-			@Override
-			public boolean andWait() {
-				return true;
-			}
-		});
-	}
-	
-	public void animate(final ValueAnimator animation){
-		animate(new Animation() {
-			
-			@Override
-			public void onCompletion() {}
-			
-			@Override
-			public Set<ValueAnimator> getAnimators() {
-				Set<ValueAnimator> animations = new HashSet<ValueAnimator>();
-				animations.add(animation);
-				return animations;
-			}
-			
-			@Override
-			public boolean andWait() {
-				return false;
-			}
-		});
-	}
-
-	public void animate(Animation animation) {
-		if (isBusy())
-			this.animations.add(animation);
-		else{
-			this.animations.add(animation);
-			runAnimations();
+	public final void cancelAllAnimations(){
+		synchronized(waiting){
+			for(Animator a : waiting)
+				a.cancel();
 		}
+		waiting.clear();
+		toAnimate.clear();
+	}
+	
+	public final boolean isBusy(){
+		return !waiting.isEmpty() || !toAnimate.isEmpty();
+	}
+	
+	private final void startNext(){
+		Set<Change> changes = toAnimate.pop();
+		boolean destroyed = false;
+		for(Change c : changes){
 			
+			DisplayablePiece piece = view.getPiece(c.getPiece());
+			ValueAnimator animation = null;
+			if(c.destroyed()){
+				float left = -PieceResources.getSize();
+				float top = view.getHeight() + PieceResources.getSize();
+				animation = piece.createAnimator(new DisplayLocation(left, top));
+				view.destroy(c.getPiece(), animation);
+				destroyed = true;
+			}else if(c.created()){
+				view.addPiece(c.getPiece(), c.getStart());
+				piece = view.getPiece(c.getPiece());
+				DisplayLocation start = new DisplayLocation(c.getStart());
+				DisplayLocation end = new DisplayLocation(c.getEnd());
+				animation = piece.createAnimator(start, end);
+			}else{
+				DisplayLocation end = new DisplayLocation(c.getEnd());
+				animation = piece.createAnimator(end);						
+			}
+			animation.addListener(this);
+			animation.addUpdateListener(this);
+			animation.start();
+			waiting.add(animation);
+		}
+		if(destroyed)
+			AudioResources.playWoosh();
 	}
 	
-	private void runAnimations(){
-		if(animations.isEmpty())
-			return;
-		Animation a = animations.remove(0);
-		startAnimation(a);
-	}
-	
-	private void startAnimation(Animation animation){		
-		ValueAnimator[] animators = animation.getAnimators().toArray(new ValueAnimator[0]);
-		int last = animators.length-1;
-		if(last < 0)
-			return;
-		if(animation.andWait())
-			wait = true;
-		lookup.put(animators[last], animation);
-		for(ValueAnimator animator : animators){
-			animator.addListener(this);
-			animator.addUpdateListener(this);
-			animator.start();
+	private final void animate(){
+		synchronized(waiting){
+			if(waiting.isEmpty() && !toAnimate.isEmpty()){
+				startNext();
+			}
 		}
 	}
 	
-	private final void finishAnimation(Animator animation){
-		Animation a = lookup.remove(animation);
-		if(a != null){
-			wait = false;
-			a.onCompletion();
-		}
-		
-		if(!animations.isEmpty()){
-			runAnimations();
-		}
-		
+	@Override
+	public void update(Set<Change> message) {
+		toAnimate.add(message);
+		animate();
 	}
-
+	
 	@Override
 	public void onAnimationCancel(Animator animation) {
-		finishAnimation(animation);
+		
 	}
 
 	@Override
 	public void onAnimationEnd(Animator animation) {
-		finishAnimation(animation);
+		waiting.remove(animation);
+		if(waiting.isEmpty() && !toAnimate.isEmpty())
+			startNext();
 	}
 
 	@Override
@@ -139,17 +114,10 @@ public class AnimationHandler implements AnimatorUpdateListener,
 
 	@Override
 	public void onAnimationUpdate(ValueAnimator animation) {
-		view.invalidate();
+		//TODO Could probably be clipped per animation
+//		view.invalidate();
 	}
 
-	public static interface Animation {
-
-		public Set<ValueAnimator> getAnimators();
-		
-		public boolean andWait();
-
-		public void onCompletion();
-
-	}
+	
 
 }

@@ -1,11 +1,11 @@
 package com.gamepsychos.puzzler.move;
 
-import com.gamepsychos.puzzler.board.DisplayableBoard;
+import com.gamepsychos.puzzler.board.Board;
 import com.gamepsychos.puzzler.board.Location;
 import com.gamepsychos.puzzler.piece.Piece;
 
 /**
- * A Drop describes the movement of {@link Piece}s that remain on a {@link DisplayableBoard}
+ * A Drop describes the movement of {@link Piece}s that remain on a {@link Board}
  * after pieces have been removed.
  * @author jcollard
  *

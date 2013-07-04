@@ -1,118 +1,64 @@
 package com.gamepsychos.puzzler.piece.view;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import android.animation.ObjectAnimator;
-import android.content.res.Resources;
+import android.animation.ValueAnimator;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.view.View;
 
-import com.gamepsychos.puzzler.R;
-import com.gamepsychos.puzzler.animation.AnimationHandler;
+import com.gamepsychos.puzzler.animation.Animateable;
+import com.gamepsychos.puzzler.animation.Displayable;
 import com.gamepsychos.puzzler.piece.Piece;
 
-public class DisplayablePiece implements Piece {
-	
-	public static enum PieceType {
-		BLUE(R.drawable.blue_saphire),
-		GREEN(R.drawable.green_saphire),
-		RED(R.drawable.red_saphire),
-		PURPLE(R.drawable.purple_saphire),
-		YELLOW(R.drawable.yellow_saphire),
-		ORANGE(R.drawable.orange_saphire);
-		
-		private final int resource_id;
-		private Bitmap image;
-		
-		private PieceType(int resource_id){
-			this.resource_id = resource_id;
-		}
-		
-		private void initImage(Resources res){
-			if(image == null){
-				image = BitmapFactory.decodeResource(res, resource_id);
-				Bitmap scaled = Bitmap.createScaledBitmap(image, SIZE, SIZE, false);
-				scaledImages.put(this, scaled);
-			}
-		}
-		
-	}
-	
-	private static final long ANIMATION_DELAY = 400;
-	private static int SIZE = 100;
-	private static final Map<PieceType, Bitmap> scaledImages = new HashMap<DisplayablePiece.PieceType, Bitmap>();
-	
-	
-	public static void setSize(int size){
-		SIZE = size;
-		for(PieceType p : PieceType.values()){
-			if(p.image == null) continue;
-			Bitmap scaled = Bitmap.createScaledBitmap(p.image, SIZE, SIZE, false);
-			scaledImages.put(p, scaled);
-		}
-	}
-	
-	
-	private DisplayLocation location;
-	private final PieceType type;
-	
-	public DisplayablePiece(PieceType type){
-		if(type == null)
-			throw new NullPointerException();
-		location = new DisplayLocation(0, 0);
-		this.type = type;
-	}
+public class DisplayablePiece implements Displayable, Animateable {
 
-	@Override
-	public boolean matches(Piece p) {
-		if(!(p instanceof DisplayablePiece))
-			return false;
-		return ((DisplayablePiece)p).type == type;
-	}
+	private static final long ANIMATION_DURATION = 300;
 	
-	public PieceType getType(){
-		return type;
-	}
+	private DisplayLocation displayLocation;
+	private final Piece model;
+	private final View view;
 	
-	public void setLocation(DisplayLocation location){
-		if(location == null)
+	public DisplayablePiece(Piece model, DisplayLocation displayLocation, View view){
+		if(model == null || displayLocation == null || view == null)
 			throw new NullPointerException();
-		this.location = location;
+		this.model = model;
+		this.displayLocation = displayLocation;
+		this.view = view;
 	}
 	
 	public DisplayLocation getLocation(){
-		return location;
+		return displayLocation;
 	}
 	
-	public ObjectAnimator animateTo(DisplayLocation location, AnimationHandler listener){
-		ObjectAnimator animator = ObjectAnimator.ofObject(this, "location", DisplayLocation.getEvaluator(), this.location, location);
-		animator.setDuration(ANIMATION_DELAY);
-		animator.addListener(listener);
-		animator.addUpdateListener(listener);
-		animator.start();
-		return animator;
+	public final void setLocation(DisplayLocation location){
+		if(location == null)
+			throw new NullPointerException();
+		this.displayLocation = location;
+		view.invalidate();
 	}
 	
-	public ObjectAnimator animateTo(DisplayLocation l0, DisplayLocation l1, AnimationHandler listener){
-		ObjectAnimator animator = ObjectAnimator.ofObject(this, "location", DisplayLocation.getEvaluator(), l0, l1);
-		animator.setDuration(ANIMATION_DELAY);
-		animator.addListener(listener);
-		animator.addUpdateListener(listener);
-		animator.start();
-		return animator;
-	}
-	
-	public void display(Canvas canvas, Paint paint, Resources res){
-		type.initImage(res);
-		Bitmap image = scaledImages.get(type);
-		canvas.drawBitmap(image, location.getLeft(), location.getTop(), paint);
+	@Override
+	public void display(Canvas canvas, Paint paint) {
+		if(canvas == null || paint == null)
+			throw new NullPointerException();
+		Bitmap bitmap = PieceResources.getBitmap(model);
+		float left = displayLocation.getLeft();
+		float top = displayLocation.getTop();
+		canvas.drawBitmap(bitmap, left, top, paint);
 	}
 
-	public static int getSize() {
-		return SIZE;
+	@Override
+	public ValueAnimator createAnimator(DisplayLocation first, DisplayLocation ... displayLocations) {
+		Object[] locations = new Object[displayLocations.length+1];
+		locations[0] = first;
+		int i = 1;
+		for(DisplayLocation loc : displayLocations)
+			locations[i++] = loc;
+		ObjectAnimator animator = ObjectAnimator.ofObject(this, "location", DisplayLocation.getEvaluator(), locations);
+		
+		animator.setDuration(ANIMATION_DURATION);
+		return animator;
 	}
 
 }

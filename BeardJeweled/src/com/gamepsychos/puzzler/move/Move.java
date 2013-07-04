@@ -1,9 +1,9 @@
 package com.gamepsychos.puzzler.move;
 
-import com.gamepsychos.puzzler.board.DisplayableBoard;
+import com.gamepsychos.puzzler.board.Board;
 
 /**
- * A {@link Move} is an action that modifies the state of a {@link DisplayableBoard}
+ * A {@link Move} is an action that modifies the state of a {@link Board}
  * @author jcollard
  *
  */
