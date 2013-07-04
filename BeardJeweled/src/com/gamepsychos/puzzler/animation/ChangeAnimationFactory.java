@@ -8,6 +8,8 @@ import android.animation.Animator;
 import android.animation.Animator.AnimatorListener;
 import android.animation.ValueAnimator;
 
+import com.gamepsychos.puzzler.audio.AudioResource;
+import com.gamepsychos.puzzler.audio.AudioResource.SFX;
 import com.gamepsychos.puzzler.board.Change;
 import com.gamepsychos.puzzler.board.Location;
 import com.gamepsychos.puzzler.board.view.BoardView;
@@ -15,49 +17,65 @@ import com.gamepsychos.puzzler.piece.view.DisplayLocation;
 import com.gamepsychos.puzzler.piece.view.DisplayablePiece;
 import com.gamepsychos.puzzler.piece.view.PieceResources;
 
+/**
+ * A {@code ChangeAnimgationFactory} is capable of generating animations based on {@link Change}s.
+ * @author jcollard
+ *
+ */
 public class ChangeAnimationFactory {
 
+	private final AudioResource audioResource;
+	private final BoardView view;
+	
+	public ChangeAnimationFactory(BoardView view){
+		if(view == null)
+			throw new NullPointerException();
+		this.view = view;
+		this.audioResource = AudioResource.getInstance(view.getContext());
+	}
 
-	public ChangeAnimation getAnimation(Change c, BoardView view){
+	/**
+	 * Creates a {@link ChangeAnimation} from a {@link Change} to be animated on some {@link BoardView}
+	 * @param c the {@link Change} to animate
+	 * @param view the {@link BoardView} to animate on
+	 * @return a {@link ChangeAnimation}
+	 */
+	public ChangeAnimation getAnimation(Change c){
 		if(c == null || view == null)
 			throw new NullPointerException();
 		switch(c.getType()){
 		case MOVE:
-			return new MoveAnimation(c, view);
+			return new MoveAnimation(c);
 		case CREATE:
-			return new CreateAnimation(c, view);
+			return new CreateAnimation(c);
 		case DESTROY:
-			return new DestroyAnimation(c, view);
+			return new DestroyAnimation(c);
 		}
 		return null;
 	}
 	
-	private static abstract class BasicAnimation implements ChangeAnimation {
+	private abstract class BasicAnimation implements ChangeAnimation {
 		
-		protected final Change change;
-		protected final BoardView view;
+		protected final Change change;		
 		
-		
-		private BasicAnimation(Change change, BoardView view){
+		private BasicAnimation(Change change){
 			assert change != null;
-			assert view != null;
 			this.change = change;
-			this.view = view;
 		}
 		
 	}
 	
-	private static final List<DisplayLocation> getLocations(Change change){
+	private final List<DisplayLocation> getLocations(Change change){
 		List<DisplayLocation> locations = new LinkedList<DisplayLocation>();
 		for(Location l : change.getLocations())
 			locations.add(new DisplayLocation(l));
 		return locations;
 	}
 	
-	private static final class MoveAnimation extends BasicAnimation {
+	private final class MoveAnimation extends BasicAnimation {
 
-		private MoveAnimation(Change change, BoardView view){
-			super(change, view);
+		private MoveAnimation(Change change){
+			super(change);
 		}
 		
 		@Override
@@ -69,10 +87,10 @@ public class ChangeAnimationFactory {
 		
 	}
 	
-	private static final class DestroyAnimation extends BasicAnimation implements AnimatorListener {
+	private final class DestroyAnimation extends BasicAnimation implements AnimatorListener {
 
-		private DestroyAnimation(Change change, BoardView view){
-			super(change, view);
+		private DestroyAnimation(Change change){
+			super(change);
 		}
 
 		@Override
@@ -97,14 +115,14 @@ public class ChangeAnimationFactory {
 
 		@Override
 		public void onAnimationStart(Animator animation) {
-			AudioResources.playWoosh();			
+			audioResource.play(SFX.WOOSH);		
 		}
 	}
 	
-	private static final class CreateAnimation extends BasicAnimation {
+	private final class CreateAnimation extends BasicAnimation {
 
-		private CreateAnimation(Change change, BoardView view){
-			super(change, view);
+		private CreateAnimation(Change change){
+			super(change);
 		}
 
 		@Override
@@ -117,8 +135,5 @@ public class ChangeAnimationFactory {
 		}
 		
 	}
-	
-	
-	
 	
 }

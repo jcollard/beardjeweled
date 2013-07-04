@@ -38,7 +38,7 @@ public class AnimationHandler implements AnimatorUpdateListener,
 		this.view = view;		
 		this.toAnimate = new LinkedBlockingDeque<Set<Change>>();
 		this.waiting  = Collections.synchronizedSet(new HashSet<Animator>());
-		this.factory = new ChangeAnimationFactory();
+		this.factory = new ChangeAnimationFactory(this.view);
 	}
 	
 	/**
@@ -63,16 +63,13 @@ public class AnimationHandler implements AnimatorUpdateListener,
 	
 	private final void startNext(){
 		Set<Change> changes = toAnimate.pop();
-		boolean destroyed = false;
 		for(Change c : changes){
-			ValueAnimator animation = factory.getAnimation(c, view).getAnimator();
+			ValueAnimator animation = factory.getAnimation(c).getAnimator();
 			animation.addListener(this);
 			animation.addUpdateListener(this);
 			animation.start();
 			waiting.add(animation);
 		}
-		if(destroyed)
-			AudioResources.playWoosh();
 	}
 	
 	private final void animate(){
