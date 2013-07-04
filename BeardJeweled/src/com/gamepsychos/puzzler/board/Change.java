@@ -1,43 +1,39 @@
 package com.gamepsychos.puzzler.board;
 
+import java.util.List;
+
 import com.gamepsychos.puzzler.piece.Piece;
 
 public final class Change {
+	
+	public static enum ChangeType {
+		MOVE,
+		CREATE,
+		DESTROY;
+	}
 
 	private final Piece piece;
-	private final Location start;
-	private final Location end;
-	private final boolean destroyed;
-	private final boolean created;
+	private final List<Location> locations;
+	private final ChangeType type;
 
-	public Change(Piece piece, Location start, Location end, boolean destroyed, boolean created) {
-		if (piece == null || start == null || end == null)
+	public Change(Piece piece, ChangeType type, List<Location> locations) {
+		if (piece == null || locations == null || type == null)
 			throw new NullPointerException();
 		this.piece = piece;
-		this.start = start;
-		this.end = end;
-		this.destroyed = destroyed;
-		this.created = created;
+		this.locations = locations;
+		this.type = type;
 	}
 
 	public final Piece getPiece() {
 		return piece;
 	}
 
-	public final Location getStart() {
-		return start;
+	public final ChangeType getType(){
+		return this.type;
 	}
 
-	public final Location getEnd() {
-		return end;
-	}
-
-	public final boolean destroyed() {
-		return destroyed;
-	}
-	
-	public final boolean created() {
-		return created;
+	public final List<Location> getLocations() {
+		return locations;
 	}
 
 }

@@ -1,5 +1,7 @@
 package com.gamepsychos.puzzler.board.controller;
 
+import java.util.Collections;
+
 import com.gamepsychos.puzzler.board.Board;
 import com.gamepsychos.puzzler.board.Boards;
 import com.gamepsychos.puzzler.board.Location;
@@ -91,7 +93,7 @@ public class MoveBoardController implements BoardController {
 		}
 		DisplayLocation loc = new DisplayLocation(selected.selectedLocation);
 		DisplayablePiece piece = view.getPiece(selected.selectedPiece);
-		piece.createAnimator(loc).start();
+		piece.createAnimator(Collections.singletonList(loc)).start();
 		
 		return false;
 	}

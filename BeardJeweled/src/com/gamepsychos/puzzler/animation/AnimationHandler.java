@@ -13,26 +13,37 @@ import android.animation.ValueAnimator.AnimatorUpdateListener;
 
 import com.gamepsychos.puzzler.board.Change;
 import com.gamepsychos.puzzler.board.view.BoardView;
-import com.gamepsychos.puzzler.piece.view.DisplayLocation;
-import com.gamepsychos.puzzler.piece.view.DisplayablePiece;
-import com.gamepsychos.puzzler.piece.view.PieceResources;
 import com.gamepsychos.util.observer.Observer;
 
+/**
+ * An {@code AnimationHandler} is used to handle the animations associated with a {@link BoardView}.
+ * @author jcollard
+ *
+ */
 public class AnimationHandler implements AnimatorUpdateListener,
 		AnimatorListener, Observer<Set<Change>> {
 	
 	private final BoardView view;
 	private final Deque<Set<Change>> toAnimate;
 	private final Set<Animator> waiting;
+	private final ChangeAnimationFactory factory;
 	
+	/**
+	 * Create an {@link AnimationHandler} that controls the elements on {@code view}
+	 * @param view the {@link BoardView} to be animated.
+	 */
 	public AnimationHandler(BoardView view){
 		if(view == null)
 			throw new NullPointerException();
 		this.view = view;		
 		this.toAnimate = new LinkedBlockingDeque<Set<Change>>();
 		this.waiting  = Collections.synchronizedSet(new HashSet<Animator>());
+		this.factory = new ChangeAnimationFactory();
 	}
 	
+	/**
+	 * Stop all animations. When this method returns {@link AnimationHandler#isBusy()} will return {@code false}
+	 */
 	public final void cancelAllAnimations(){
 		synchronized(waiting){
 			for(Animator a : waiting)
@@ -42,6 +53,10 @@ public class AnimationHandler implements AnimatorUpdateListener,
 		toAnimate.clear();
 	}
 	
+	/**
+	 * Returns {@code true} if this {@code AnimationHandler} has unfinished animations and {@code false} otherwise.
+	 * @return {@code true} if this {@code AnimationHandler} has unfinished animations and {@code false} otherwise.
+	 */
 	public final boolean isBusy(){
 		return !waiting.isEmpty() || !toAnimate.isEmpty();
 	}
@@ -50,25 +65,7 @@ public class AnimationHandler implements AnimatorUpdateListener,
 		Set<Change> changes = toAnimate.pop();
 		boolean destroyed = false;
 		for(Change c : changes){
-			
-			DisplayablePiece piece = view.getPiece(c.getPiece());
-			ValueAnimator animation = null;
-			if(c.destroyed()){
-				float left = -PieceResources.getSize();
-				float top = view.getHeight() + PieceResources.getSize();
-				animation = piece.createAnimator(new DisplayLocation(left, top));
-				view.destroy(c.getPiece(), animation);
-				destroyed = true;
-			}else if(c.created()){
-				view.addPiece(c.getPiece(), c.getStart());
-				piece = view.getPiece(c.getPiece());
-				DisplayLocation start = new DisplayLocation(c.getStart());
-				DisplayLocation end = new DisplayLocation(c.getEnd());
-				animation = piece.createAnimator(start, end);
-			}else{
-				DisplayLocation end = new DisplayLocation(c.getEnd());
-				animation = piece.createAnimator(end);						
-			}
+			ValueAnimator animation = factory.getAnimation(c, view).getAnimator();
 			animation.addListener(this);
 			animation.addUpdateListener(this);
 			animation.start();
@@ -94,7 +91,7 @@ public class AnimationHandler implements AnimatorUpdateListener,
 	
 	@Override
 	public void onAnimationCancel(Animator animation) {
-		
+		waiting.remove(animation);
 	}
 
 	@Override
@@ -114,8 +111,6 @@ public class AnimationHandler implements AnimatorUpdateListener,
 
 	@Override
 	public void onAnimationUpdate(ValueAnimator animation) {
-		//TODO Could probably be clipped per animation
-//		view.invalidate();
 	}
 
 	

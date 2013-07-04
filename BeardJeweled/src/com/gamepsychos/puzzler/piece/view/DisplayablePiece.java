@@ -1,5 +1,7 @@
 package com.gamepsychos.puzzler.piece.view;
 
+import java.util.List;
+
 import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
 import android.graphics.Bitmap;
@@ -13,7 +15,7 @@ import com.gamepsychos.puzzler.piece.Piece;
 
 public class DisplayablePiece implements Displayable, Animateable {
 
-	private static final long ANIMATION_DURATION = 300;
+	private static final long DEFAULT_ANIMATION_DURATION = 300;
 	
 	private DisplayLocation displayLocation;
 	private final Piece model;
@@ -49,15 +51,11 @@ public class DisplayablePiece implements Displayable, Animateable {
 	}
 
 	@Override
-	public ValueAnimator createAnimator(DisplayLocation first, DisplayLocation ... displayLocations) {
-		Object[] locations = new Object[displayLocations.length+1];
-		locations[0] = first;
-		int i = 1;
-		for(DisplayLocation loc : displayLocations)
-			locations[i++] = loc;
-		ObjectAnimator animator = ObjectAnimator.ofObject(this, "location", DisplayLocation.getEvaluator(), locations);
-		
-		animator.setDuration(ANIMATION_DURATION);
+	public ValueAnimator createAnimator(List<DisplayLocation> locations){
+		if(locations.isEmpty()) return ObjectAnimator.ofObject(this, "location", DisplayLocation.getEvaluator(), displayLocation);
+		Object[] locs = locations.toArray();
+		ObjectAnimator animator = ObjectAnimator.ofObject(this, "location", DisplayLocation.getEvaluator(), locs);
+		animator.setDuration(DEFAULT_ANIMATION_DURATION);
 		return animator;
 	}
 

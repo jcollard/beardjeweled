@@ -2,8 +2,11 @@ package com.gamepsychos.puzzler.board;
 
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
 
+import com.gamepsychos.puzzler.board.Change.ChangeType;
 import com.gamepsychos.puzzler.move.Drop;
 import com.gamepsychos.puzzler.move.IllegalMoveException;
 import com.gamepsychos.puzzler.move.Move;
@@ -107,8 +110,8 @@ public class BasicBoard implements Board {
 	}
 
 	private final void swapPieces(Location a, Location b) {
-		Change change0 = new Change(piece[a.getRow()][a.getCol()], a, b, false, false);
-		Change change1 = new Change(piece[b.getRow()][b.getCol()], b, a, false, false);
+		Change change0 = new Change(piece[a.getRow()][a.getCol()], ChangeType.MOVE, Collections.singletonList(b));
+		Change change1 = new Change(piece[b.getRow()][b.getCol()], ChangeType.MOVE, Collections.singletonList(a));
 		
 		Piece temp = piece[a.getRow()][a.getCol()];
 		piece[a.getRow()][a.getCol()] = piece[b.getRow()][b.getCol()];
@@ -142,7 +145,8 @@ public class BasicBoard implements Board {
 		for (Location l : locations){
 			Piece p = piece[l.getRow()][l.getCol()];
 			pieces.add(p);
-			Change destroy = new Change(p, l, l, true, false);
+			List<Location> emptyList = Collections.emptyList();
+			Change destroy = new Change(p, ChangeType.DESTROY, emptyList);
 			piece[l.getRow()][l.getCol()] = null;
 			destroyed.add(destroy);
 		}
@@ -152,7 +156,12 @@ public class BasicBoard implements Board {
 		Set<Change> dropped = new HashSet<Change>();
 		for(Drop d : drops){
 			boolean created = !Boards.inBounds(this, d.getStart());
-			Change drop = new Change(d.getPiece(), d.getStart(), d.getEnd(), false, created);
+			
+			List<Location> ls = new LinkedList<Location>();
+			ls.add(d.getStart());
+			ls.add(d.getEnd());
+			ChangeType type = created ? ChangeType.CREATE : ChangeType.MOVE;
+			Change drop = new Change(d.getPiece(), type, ls);
 			dropped.add(drop);
 		}
 		delegate.notifyObservers(dropped);
