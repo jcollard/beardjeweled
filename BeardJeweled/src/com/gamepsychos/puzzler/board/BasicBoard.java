@@ -141,19 +141,18 @@ public class BasicBoard implements Board {
 			return new BasicMoveResult(locations, null, drops, pieces);
 		}
 		
-		Set<Change> destroyed = new HashSet<Change>();
+		Set<Change> changes = new HashSet<Change>();
 		for (Location l : locations){
 			Piece p = piece[l.getRow()][l.getCol()];
 			pieces.add(p);
 			List<Location> emptyList = Collections.emptyList();
 			Change destroy = new Change(p, ChangeType.DESTROY, emptyList);
 			piece[l.getRow()][l.getCol()] = null;
-			destroyed.add(destroy);
+			changes.add(destroy);
 		}
-		delegate.notifyObservers(destroyed);
 
 		final Set<Drop> drops = findDrops();
-		Set<Change> dropped = new HashSet<Change>();
+		
 		for(Drop d : drops){
 			boolean created = !Boards.inBounds(this, d.getStart());
 			
@@ -162,9 +161,9 @@ public class BasicBoard implements Board {
 			ls.add(d.getEnd());
 			ChangeType type = created ? ChangeType.CREATE : ChangeType.MOVE;
 			Change drop = new Change(d.getPiece(), type, ls);
-			dropped.add(drop);
+			changes.add(drop);
 		}
-		delegate.notifyObservers(dropped);
+		delegate.notifyObservers(changes);
 		
 		return new BasicMoveResult(locations, new FollowUpMove(), drops, pieces);
 	}

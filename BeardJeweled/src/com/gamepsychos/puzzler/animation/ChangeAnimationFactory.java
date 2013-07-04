@@ -4,6 +4,8 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
+import android.animation.Animator;
+import android.animation.Animator.AnimatorListener;
 import android.animation.ValueAnimator;
 
 import com.gamepsychos.puzzler.board.Change;
@@ -67,7 +69,7 @@ public class ChangeAnimationFactory {
 		
 	}
 	
-	private static final class DestroyAnimation extends BasicAnimation {
+	private static final class DestroyAnimation extends BasicAnimation implements AnimatorListener {
 
 		private DestroyAnimation(Change change, BoardView view){
 			super(change, view);
@@ -79,9 +81,24 @@ public class ChangeAnimationFactory {
 			float top = view.getHeight()+PieceResources.getSize();
 			DisplayablePiece piece = view.getPiece(change.getPiece());
 			ValueAnimator animation = piece.createAnimator(Collections.singletonList(new DisplayLocation(left, top)));
+			animation.setDuration(500);
+			animation.addListener(this);
 			return animation;
 		}
-		
+
+		@Override
+		public void onAnimationCancel(Animator animation) {}
+
+		@Override
+		public void onAnimationEnd(Animator animation) {}
+
+		@Override
+		public void onAnimationRepeat(Animator animation) {}
+
+		@Override
+		public void onAnimationStart(Animator animation) {
+			AudioResources.playWoosh();			
+		}
 	}
 	
 	private static final class CreateAnimation extends BasicAnimation {
