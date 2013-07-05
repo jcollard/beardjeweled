@@ -6,6 +6,7 @@ import com.gamepsychos.puzzler.board.Board;
 import com.gamepsychos.puzzler.board.Boards;
 import com.gamepsychos.puzzler.board.Location;
 import com.gamepsychos.puzzler.board.view.BoardView;
+import com.gamepsychos.puzzler.game.Game;
 import com.gamepsychos.puzzler.move.Move;
 import com.gamepsychos.puzzler.move.MoveFactory;
 import com.gamepsychos.puzzler.move.MoveResult;
@@ -21,6 +22,7 @@ import com.gamepsychos.puzzler.piece.view.PieceResources;
  */
 public class MoveBoardController implements BoardController {
 	
+	private final Game game;
 	private final Board board;
 	private final BoardView view;
 	private SelectedPiece selected;
@@ -30,10 +32,11 @@ public class MoveBoardController implements BoardController {
 	 * on a {@link Board}.
 	 * @param board
 	 */
-	public MoveBoardController(Board board, BoardView view){
-		if(board == null || view == null)
-			throw new NullPointerException();
-		this.board = board;
+	public MoveBoardController(BoardView view){
+		if(view == null)
+			throw new NullPointerException(); 
+		this.game = view.getGame();
+		this.board = this.game.getBoard();
 		this.view = view;
 	}
 
@@ -51,15 +54,11 @@ public class MoveBoardController implements BoardController {
 		return new DisplayLocation(left, top);
 	}
 	
-	private final void releaseSelected(){
-		if(selected == null) return;
-		
-	}
 	
 	@Override
 	public boolean onTouch(float left, float top) {
-		if(selected != null)
-			releaseSelected();
+		if(game.getMovesRemaining() < 1) return false;
+
 		Location loc = getLocation(left, top);
 		if(!Boards.inBounds(board, loc))
 			return false;
@@ -76,6 +75,7 @@ public class MoveBoardController implements BoardController {
 
 	@Override
 	public boolean onRelease(float left, float top) {
+		if(game.getMovesRemaining() < 1) return false;
 		if(selected == null)
 			return false;
 		Location location = getLocation(left, top);
@@ -100,6 +100,7 @@ public class MoveBoardController implements BoardController {
 
 	@Override
 	public boolean onMove(float left, float top) {
+		if(game.getMovesRemaining() < 1) return false;
 		if(selected == null)
 			return false;
 		DisplayablePiece p = view.getPiece(selected.selectedPiece);

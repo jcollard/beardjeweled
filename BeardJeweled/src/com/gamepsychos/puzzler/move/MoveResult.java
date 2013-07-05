@@ -38,6 +38,13 @@ public interface MoveResult {
 	public Set<Drop> drops();
 	
 	/**
+	 * Returns {@code true} if this result is from a {@link Move} that was a
+	 * follow up to a previous {@link Move} and {@code false} otherwise.
+	 * @return {@code true} if this result is from a previous {@link Move}
+	 */
+	public boolean isFollowUpMove();
+	
+	/**
 	 * Returns the follow up {@link Move} if it exists.
 	 * @return the follow up {@link Move} if it exists.
 	 * @throws IllegalMoveException if there is no follow up move

@@ -2,7 +2,6 @@ package com.gamepsychos.puzzler.board.view;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Random;
 
 import android.animation.Animator;
 import android.animation.Animator.AnimatorListener;
@@ -17,12 +16,11 @@ import android.view.View;
 
 import com.gamepsychos.puzzler.R;
 import com.gamepsychos.puzzler.animation.AnimationHandler;
-import com.gamepsychos.puzzler.board.BasicBoard;
 import com.gamepsychos.puzzler.board.Board;
 import com.gamepsychos.puzzler.board.Location;
 import com.gamepsychos.puzzler.board.controller.BoardController;
 import com.gamepsychos.puzzler.board.controller.MoveBoardController;
-import com.gamepsychos.puzzler.piece.BasicPieceFactory;
+import com.gamepsychos.puzzler.game.Game;
 import com.gamepsychos.puzzler.piece.Piece;
 import com.gamepsychos.puzzler.piece.view.DisplayLocation;
 import com.gamepsychos.puzzler.piece.view.DisplayablePiece;
@@ -33,6 +31,7 @@ public class BoardView extends View {
 	private final AnimationHandler animationHandler;
 	private final Paint paint;
 	private final Board board;
+	private final Game game;
 	private final Map<Piece, DisplayablePiece> displayedPieces;
 	private BoardController controller;
 	private static final int BACKGROUND_SIZE = 100;
@@ -40,20 +39,22 @@ public class BoardView extends View {
 	private final Bitmap background;
 	
 	public BoardView(Context context){
-		this(context, new BasicBoard(new BasicPieceFactory(new Random())));
+		super(context);
+		throw new UnsupportedOperationException();
 	}
 	
-	public BoardView(Context context, Board board) {
+	public BoardView(Context context, Game game) {
 		super(context);
-		if(board == null)
+		if(game == null)
 			throw new NullPointerException();
-		this.board = board;
+		this.game = game;
+		this.board = game.getBoard();
 		Bitmap background = BitmapFactory.decodeResource(getResources(), R.drawable.concrete_background);
 		this.background = Bitmap.createScaledBitmap(background, BACKGROUND_SIZE, BACKGROUND_SIZE, false);
 		this.paint = new Paint();
 		this.displayedPieces = new HashMap<Piece, DisplayablePiece>();
 		this.animationHandler = new AnimationHandler(this);
-		this.controller = new MoveBoardController(board, this);
+		this.controller = new MoveBoardController(this);
 		board.register(animationHandler);
 		updateAllPieces();
 	}
@@ -159,6 +160,10 @@ public class BoardView extends View {
 				displayedPieces.remove(piece);
 			}
 		});
+	}
+
+	public final Game getGame() {
+		return game;
 	}
 	
 }

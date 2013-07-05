@@ -4,7 +4,7 @@ import android.content.Context;
 import android.view.View;
 import android.widget.RelativeLayout;
 
-import com.gamepsychos.puzzler.board.Board;
+import com.gamepsychos.puzzler.game.Game;
 
 public class GameLayout extends RelativeLayout {
 	
@@ -19,10 +19,14 @@ public class GameLayout extends RelativeLayout {
 		throw new UnsupportedOperationException();
 	}
 	
-	public GameLayout(Context context, Board board){
+	public GameLayout(Context context, Game game){
 		super(context);
-		this.boardview = new BoardView(context, board);
-		this.scoreview = new ScoreView(context, board);
+		if(game == null)
+			throw new NullPointerException();
+		
+		this.boardview = new BoardView(context, game);
+		
+		this.scoreview = new ScoreView(context, game);
 
 		boardview.setId(1);
 		scoreview.setId(2);
