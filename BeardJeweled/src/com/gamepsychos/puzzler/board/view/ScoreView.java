@@ -3,6 +3,7 @@ package com.gamepsychos.puzzler.board.view;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.graphics.Typeface;
 import android.view.View;
 
 import com.gamepsychos.puzzler.game.Game;
@@ -26,6 +27,9 @@ public class ScoreView extends View implements Observer<GameMessage> {
 		this.game = game;
 		this.game.register(this);
 		this.paint = new Paint();
+		Typeface font = Typeface.createFromAsset(context.getAssets(), "fonts/hurryup.ttf");
+		
+		paint.setTypeface(font);
 	}
 
 	@Override
@@ -37,6 +41,7 @@ public class ScoreView extends View implements Observer<GameMessage> {
 		int streak = game.getLatestStreak();
 		float fontSize = 64;
 		paint.setTextSize(fontSize);
+		
 		
 		canvas.drawText("Moves Remaining: " + moves, 0, fontSize, paint);
 		
