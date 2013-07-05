@@ -41,7 +41,13 @@ public class MoveResultAnimation {
 	}
 	
 	private final void animateCombo(){
-		
+		int streak = message.getStreak()-1;
+		if(!message.getResults().followUpMove() && streak > 1){
+			ValueAnimator animation = getStringAnimation(streak + "-STREAK", Color.RED);
+			animation.setStartDelay(100);
+			animation.setDuration(800);
+			animators.add(animation);
+		}
 	}
 	
 	private final ValueAnimator getStringAnimation(String string, int color){
@@ -70,7 +76,6 @@ public class MoveResultAnimation {
 		int points = message.getPointsAwarded();
 		if(points > 0){
 			ValueAnimator animation = getStringAnimation(""+points, Color.YELLOW);
-			animation.setStartDelay(50);
 			animators.add(animation);
 		}
 	}
@@ -79,7 +84,7 @@ public class MoveResultAnimation {
 		float middle = length/2f;
 		float stringSize = view.getBoardView().getStringSize();
 		top += stringSize/2;
-		left -= middle*(stringSize/2);
+		left -= middle*(stringSize/1.7);
 		return new DisplayLocation(left, top);
 	}
 	

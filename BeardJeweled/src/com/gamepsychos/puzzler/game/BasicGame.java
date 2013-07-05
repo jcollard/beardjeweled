@@ -190,7 +190,7 @@ public final class BasicGame implements Game, Observer<MoveResult> {
 		}
 
 		@Override
-		public int streak() {
+		public int getStreak() {
 			return score.streak;
 		}
 

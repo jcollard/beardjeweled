@@ -30,7 +30,7 @@ public interface Game extends Observable<GameMessage> {
 		
 		public int getPiecesCollected();
 		
-		public int streak();
+		public int getStreak();
 		
 	}
 	
