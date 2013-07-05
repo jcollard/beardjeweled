@@ -11,6 +11,12 @@ import com.gamepsychos.puzzler.R;
 import com.gamepsychos.puzzler.piece.Piece;
 import com.gamepsychos.puzzler.piece.PieceType;
 
+/**
+ * {@link PieceResources} is an abstract class that stores data on the {@link Piece}s that
+ * can be displayed. This includes the current display size and {@link Bitmap}s of the images
+ * @author jcollard
+ *
+ */
 public abstract class PieceResources {
 	
 	private static final Map<PieceType, Bitmap> pieces;

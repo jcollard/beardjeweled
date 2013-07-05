@@ -26,6 +26,11 @@ import com.gamepsychos.puzzler.piece.view.DisplayLocation;
 import com.gamepsychos.puzzler.piece.view.DisplayablePiece;
 import com.gamepsychos.puzzler.piece.view.PieceResources;
 
+/**
+ * A {@code BoardView} is a view that displays the state of a {@link Game}.
+ * @author jcollard
+ *
+ */
 public class BoardView extends View {
 
 	private final AnimationHandler animationHandler;
@@ -38,11 +43,20 @@ public class BoardView extends View {
 	private DisplayLocation offset = new DisplayLocation(0,0);
 	private final Bitmap background;
 	
+	/**
+	 * This constructor will throw an {@link UnsupportedOperationException} and should not be used.
+	 */
 	public BoardView(Context context){
 		super(context);
 		throw new UnsupportedOperationException();
 	}
 	
+	/**
+	 * Creates a {@code BoardView} specifying the {@link Context} and {@link Game}
+	 * to use.
+	 * @param context the {@link Context} for this {@code BoardView}
+	 * @param game the {@link Game} that the created {@code BoardView} will use as a model
+	 */
 	public BoardView(Context context, Game game) {
 		super(context);
 		if(game == null)
@@ -135,12 +149,22 @@ public class BoardView extends View {
 		return displayedPieces.get(p);
 	}
 
+	/**
+	 * Adds a {@link Piece} to be displayed.
+	 * @param piece the {@link Piece} to add
+	 * @param loc the {@link Location} of the {@code Piece}
+	 */
 	public void addPiece(Piece piece, Location loc) {
 		DisplayLocation displayLocation = new DisplayLocation(loc);
 		DisplayablePiece dp = new DisplayablePiece(piece, displayLocation, this);
 		displayedPieces.put(piece, dp);
 	}
 
+	/**
+	 * Destroys the specified {@link Piece} when the specified {@link ValueAnimator} has completed.
+	 * @param piece the {@link Piece} to be destroyed
+	 * @param animation the animation to wait for
+	 */
 	public void destroy(final Piece piece, ValueAnimator animation) {
 		animation.addListener(new AnimatorListener() {
 			

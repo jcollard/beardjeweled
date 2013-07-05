@@ -6,6 +6,11 @@ import android.widget.RelativeLayout;
 
 import com.gamepsychos.puzzler.game.Game;
 
+/**
+ * A {@code GameLayout} is a view that displays a {@link Game}s state.
+ * @author jcollard
+ *
+ */
 public class GameLayout extends RelativeLayout {
 	
 	private static final float score_space = 0.20f;
@@ -14,11 +19,20 @@ public class GameLayout extends RelativeLayout {
 	private final BoardView boardview;
 	private final View scoreview;
 
+	/**
+	 * A call to this constructor will result in an {@link UnsupportedOperationException}
+	 */
 	public GameLayout(Context context) {
 		super(context);
 		throw new UnsupportedOperationException();
 	}
 	
+	/**
+	 * Creates a {@code GameLayout} specifying the {@link Context} and {@link Game} to
+	 * use.
+	 * @param context the {@link Context} for this {@link View}
+	 * @param game the {@link Game} to use as a model
+	 */
 	public GameLayout(Context context, Game game){
 		super(context);
 		if(game == null)

@@ -10,16 +10,30 @@ import com.gamepsychos.puzzler.game.Game;
 import com.gamepsychos.puzzler.game.Game.GameMessage;
 import com.gamepsychos.util.observer.Observer;
 
+/**
+ * A {@link ScoreView} displays the current score of a {@link Game}
+ * @author jcollard
+ *
+ */
 public class ScoreView extends View implements Observer<GameMessage> {
 
 	private final Game game;
 	private final Paint paint;
 	
+	/**
+	 * A call to this constructor will result in an {@link UnsupportedOperationException}
+	 */
 	public ScoreView(Context context){
 		super(context);
 		throw new UnsupportedOperationException();
 	}
 	
+	/**
+	 * Creates a {@link ScoreView} specifying the {@link Context} for the {@link View} and
+	 * the {@link Game} to use as a model.
+	 * @param context the {@link Context} for this {@link View}
+	 * @param game the {@link Game} to model
+	 */
 	public ScoreView(Context context, Game game) {
 		super(context);
 		if(game == null)

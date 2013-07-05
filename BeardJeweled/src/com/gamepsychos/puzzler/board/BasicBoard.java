@@ -129,6 +129,8 @@ public class BasicBoard implements Board {
 		delegate.notifyObservers(new ChangeBoardMessage(message));
 	}
 	
+	
+	//TODO Write interface for clearing a board
 	private final MoveResult clearBoard(boolean isFollowUp){
 		final Set<Location> locations = new HashSet<Location>();
 		final Set<Piece> pieces = new HashSet<Piece>();

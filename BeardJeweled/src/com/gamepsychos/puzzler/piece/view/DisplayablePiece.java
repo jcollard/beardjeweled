@@ -13,6 +13,12 @@ import com.gamepsychos.puzzler.animation.Animateable;
 import com.gamepsychos.puzzler.animation.Displayable;
 import com.gamepsychos.puzzler.piece.Piece;
 
+/**
+ * A {@link DisplayablePiece} models a {@link Piece}, displays itself and 
+ * can be animated.
+ * @author jcollard
+ *
+ */
 public class DisplayablePiece implements Displayable, Animateable {
 
 	private static final long DEFAULT_ANIMATION_DURATION = 300;
@@ -21,6 +27,13 @@ public class DisplayablePiece implements Displayable, Animateable {
 	private final Piece model;
 	private final View view;
 	
+	/**
+	 * Creates a {@link DisplayablePiece} initializing the {@link Piece}, initial
+	 * {@link DisplayLocation}, and {@link View} to update upon changing.
+	 * @param model the {@link Piece} to model
+	 * @param displayLocation the {@link DisplayLocaiton} to start at
+	 * @param view the {@link View} to notify upon update.
+	 */
 	public DisplayablePiece(Piece model, DisplayLocation displayLocation, View view){
 		if(model == null || displayLocation == null || view == null)
 			throw new NullPointerException();

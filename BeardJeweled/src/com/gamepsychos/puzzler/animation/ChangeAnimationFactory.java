@@ -35,12 +35,12 @@ public class ChangeAnimationFactory {
 	}
 
 	/**
-	 * Creates a {@link ChangeAnimation} from a {@link Change} to be animated on some {@link BoardView}
+	 * Creates a {@link Animation} from a {@link Change} to be animated on some {@link BoardView}
 	 * @param c the {@link Change} to animate
 	 * @param view the {@link BoardView} to animate on
-	 * @return a {@link ChangeAnimation}
+	 * @return a {@link Animation}
 	 */
-	public ChangeAnimation getAnimation(Change c){
+	public Animation getAnimation(Change c){
 		if(c == null || view == null)
 			throw new NullPointerException();
 		switch(c.getType()){
@@ -54,7 +54,7 @@ public class ChangeAnimationFactory {
 		return null;
 	}
 	
-	private abstract class BasicAnimation implements ChangeAnimation {
+	private abstract class BasicAnimation implements Animation {
 		
 		protected final Change change;		
 		

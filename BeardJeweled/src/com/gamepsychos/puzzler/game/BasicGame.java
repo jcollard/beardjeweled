@@ -11,6 +11,14 @@ import com.gamepsychos.puzzler.piece.Piece;
 import com.gamepsychos.util.observer.BasicObservable;
 import com.gamepsychos.util.observer.Observer;
 
+/**
+ * A {@link BasicGame} is a simple implementation of {@link Game} that
+ * tracks the score through a specified {@link ScoreCalculator}. Additional
+ * moves are rewarded to a player who clears 4 or more jewels at the same time.
+ * The number awarded is equal to the number of jewels cleared minus 3.
+ * @author jcollard
+ *
+ */
 public final class BasicGame implements Game, Observer<BoardMessage> {
 
 	private static final int BONUS_THRESHOLD = 3;
@@ -22,6 +30,13 @@ public final class BasicGame implements Game, Observer<BoardMessage> {
 	private final Board board;
 	private int latestStreak = 0;
 
+	/**
+	 * Creates a {@link BasicGame} that allows the user to take {@code moves}
+	 * calculates the score with {@code calculator} and models {@code board}
+	 * @param moves the initial number of moves the player receives
+	 * @param calculator the calculator to use for scoring
+	 * @param board the board to model
+	 */
 	public BasicGame(int moves, ScoreCalculator calculator, Board board) {
 		if (moves < 0)
 			throw new IllegalArgumentException();

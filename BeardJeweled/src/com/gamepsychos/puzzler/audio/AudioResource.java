@@ -53,6 +53,11 @@ public class AudioResource {
 	private float music_volume = 1.0f;
 	private float sfx_volume = 1.0f;
 	
+	/**
+	 * Returns an {@code AudioResource} associated with the specified {@link Context}.
+	 * @param context the {@link Context} associated with the returned {@code AudioResourcE}
+	 * @return an {@code AudioResource} associated with the specified {@link Context}.
+	 */
 	public static AudioResource getInstance(Context context){
 		AudioResource resource = audioLookup.get(context);
 		if(resource == null){

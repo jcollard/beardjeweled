@@ -5,10 +5,19 @@ import android.animation.TypeEvaluator;
 
 import com.gamepsychos.puzzler.board.Location;
 
+/**
+ * A {@link DisplayLocation} contains data about a point on the screen.
+ * @author jcollard
+ *
+ */
 public class DisplayLocation {
 	
 	private static final TypeEvaluator<DisplayLocation> evaluator = new DisplayLocationEvaluator();
 	
+	/**
+	 * Returns a {@link TypeEvaluator} that can evaluate between two {@link DisplayLocation}s.
+	 * @return a {@link TypeEvaluator} that can evaluate between two {@link DisplayLocation}s.
+	 */
 	public static TypeEvaluator<DisplayLocation> getEvaluator(){
 		return evaluator;
 	}
@@ -16,6 +25,11 @@ public class DisplayLocation {
 	private final float left;
 	private final float top;
 	
+	/**
+	 * Creates a new {@link DisplayLocation} converting the specified {@link Location}
+	 * based on the current size of {@link Piece}s as determined by {@link PieceResources#getSize()}
+	 * @param loc the {@link Location} to translate
+	 */
 	public DisplayLocation(Location loc){
 		if(loc == null)
 			throw new NullPointerException();
@@ -24,9 +38,14 @@ public class DisplayLocation {
 		this.left = loc.getCol()*size;
 	}
 	
-	public DisplayLocation(float x, float y){
-		this.left = x;
-		this.top = y;
+	/**
+	 * Creates a new {@link DisplayLocation} at the specified coordinates
+	 * @param left the distance from the left most side of the screen
+	 * @param top the distance from the top most side of the screen
+	 */
+	public DisplayLocation(float left, float top){
+		this.left = left;
+		this.top = top;
 	}
 	
 	public float getLeft(){

@@ -4,6 +4,15 @@ import java.util.Set;
 
 import com.gamepsychos.puzzler.board.Location;
 
+/**
+ * <pre>
+ * A {@link BasicScoreCalculator} calculates the score using the following
+ * formula:
+ * (streak+1)*25*(locations.size-2)^2
+ * </pre>
+ * @author jcollard
+ *
+ */
 public class BasicScoreCalculator implements ScoreCalculator {
 
 	@Override
