@@ -1,7 +1,9 @@
 package com.gamepsychos.puzzler.board.view;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import android.animation.Animator;
 import android.animation.Animator.AnimatorListener;
@@ -10,7 +12,9 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Typeface;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -33,15 +37,20 @@ import com.gamepsychos.puzzler.piece.view.PieceResources;
  */
 public class BoardView extends View {
 
-	private final AnimationHandler animationHandler;
+	private static final DisplayLocation NO_OFFSET = new DisplayLocation(0, 0);
+	private AnimationHandler animationHandler;
 	private final Paint paint;
 	private final Board board;
 	private final Game game;
 	private final Map<Piece, DisplayablePiece> displayedPieces;
+	private final Set<DisplayableString> displayedStrings;
 	private BoardController controller;
 	private static final int BACKGROUND_SIZE = 100;
 	private DisplayLocation offset = new DisplayLocation(0,0);
 	private final Bitmap background;
+	private final Paint stringPaint;
+	private final float string_size;
+
 	
 	/**
 	 * This constructor will throw an {@link UnsupportedOperationException} and should not be used.
@@ -67,10 +76,42 @@ public class BoardView extends View {
 		this.background = Bitmap.createScaledBitmap(background, BACKGROUND_SIZE, BACKGROUND_SIZE, false);
 		this.paint = new Paint();
 		this.displayedPieces = new HashMap<Piece, DisplayablePiece>();
-		this.animationHandler = new AnimationHandler(this);
+		this.displayedStrings = new HashSet<DisplayableString>();
 		this.controller = new MoveBoardController(this);
-		board.register(animationHandler);
+		this.stringPaint = new Paint();
+		this.string_size = 200.0f;
+		intializeFont(); 
 		updateAllPieces();
+	}
+	
+	public final float getStringSize(){
+		return string_size;
+	}
+	
+	private final void intializeFont(){
+		Typeface font = Typeface.createFromAsset(getContext().getAssets(), "fonts/hurryup.ttf");
+		stringPaint.setTypeface(font);
+		stringPaint.setTextSize(string_size);
+		stringPaint.setColor(Color.YELLOW);
+	}
+	
+	public final void addDisplayableString(DisplayableString toAdd){
+		if(toAdd == null)
+			throw new NullPointerException();
+		displayedStrings.add(toAdd);
+	}
+	
+	public final void removeDisplayableString(DisplayableString toRemove){
+		if(toRemove == null)
+			throw new NullPointerException();
+		displayedStrings.remove(toRemove);
+	}
+	
+	public final void addAnimationHandler(AnimationHandler animationHandler){
+		if(animationHandler == null)
+			throw new NullPointerException();
+		this.animationHandler = animationHandler;
+		game.register(animationHandler);
 	}
 
 	@Override
@@ -106,6 +147,9 @@ public class BoardView extends View {
 		for(DisplayablePiece p : displayedPieces.values())
 			p.display(canvas, paint, offset);
 		
+		//Strings
+		for(DisplayableString string : displayedStrings)
+			string.display(canvas, stringPaint, NO_OFFSET);
 		
 	}
 

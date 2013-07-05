@@ -4,6 +4,7 @@ import android.content.Context;
 import android.view.View;
 import android.widget.RelativeLayout;
 
+import com.gamepsychos.puzzler.animation.AnimationHandler;
 import com.gamepsychos.puzzler.game.Game;
 
 /**
@@ -17,7 +18,8 @@ public class GameLayout extends RelativeLayout {
 	private static final float board_space = 0.80f;
 	
 	private final BoardView boardview;
-	private final View scoreview;
+	private final ScoreView scoreview;
+	private final AnimationHandler handler;
 
 	/**
 	 * A call to this constructor will result in an {@link UnsupportedOperationException}
@@ -39,8 +41,9 @@ public class GameLayout extends RelativeLayout {
 			throw new NullPointerException();
 		
 		this.boardview = new BoardView(context, game);
-		
 		this.scoreview = new ScoreView(context, game);
+		this.handler = new AnimationHandler(this);
+		this.boardview.addAnimationHandler(this.handler);
 
 		boardview.setId(1);
 		scoreview.setId(2);
@@ -50,6 +53,14 @@ public class GameLayout extends RelativeLayout {
 		
 		setLayouts();
 		
+	}
+	
+	public final BoardView getBoardView(){
+		return boardview;
+	}
+	
+	public final ScoreView getScoreView(){
+		return scoreview;
 	}
 	
 	private final void setLayouts(){

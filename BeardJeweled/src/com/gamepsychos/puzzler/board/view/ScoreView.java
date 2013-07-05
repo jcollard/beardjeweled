@@ -8,14 +8,13 @@ import android.view.View;
 
 import com.gamepsychos.puzzler.game.Game;
 import com.gamepsychos.puzzler.game.Game.GameMessage;
-import com.gamepsychos.util.observer.Observer;
 
 /**
  * A {@link ScoreView} displays the current score of a {@link Game}
  * @author jcollard
  *
  */
-public class ScoreView extends View implements Observer<GameMessage> {
+public class ScoreView extends View {
 
 	private final Game game;
 	private final Paint paint;
@@ -39,20 +38,22 @@ public class ScoreView extends View implements Observer<GameMessage> {
 		if(game == null)
 			throw new NullPointerException();
 		this.game = game;
-		this.game.register(this);
 		this.paint = new Paint();
 		Typeface font = Typeface.createFromAsset(context.getAssets(), "fonts/hurryup.ttf");
 		
 		paint.setTypeface(font);
+		score = game.getScore();
+		jewels = game.getPiecesCollected().size();
+		moves = game.getMovesRemaining();
 	}
+	
+	private int score;
+	private int jewels;
+	private int moves;
 
 	@Override
 	protected void onDraw(Canvas canvas) {
 		super.onDraw(canvas);
-		int score = game.getScore();
-		int jewels = game.getPiecesCollected().size();
-		int moves = game.getMovesRemaining();
-		int streak = game.getLatestStreak();
 		float fontSize = 64;
 		paint.setTextSize(fontSize);
 		
@@ -63,12 +64,19 @@ public class ScoreView extends View implements Observer<GameMessage> {
 		
 		canvas.drawText("Score: " + score, 0, fontSize*3, paint);
 		
-		canvas.drawText("Latest Streak: " + streak, 0, fontSize*4, paint);
-		
 	}
 
-	@Override
-	public void update(GameMessage message) {
+	public final void updateScore(GameMessage message){
+		score += message.getPointsAwarded();
+		jewels += message.getPiecesCollected();
+		moves += message.getMovesChange();
+		invalidate();
+	}	
+	
+	public final void syncWithGame(){
+		score = game.getScore(); 
+		jewels = game.getPiecesCollected().size();
+		moves = game.getMovesRemaining();
 		invalidate();
 	}
 

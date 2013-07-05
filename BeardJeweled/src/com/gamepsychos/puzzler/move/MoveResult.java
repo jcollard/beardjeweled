@@ -2,6 +2,7 @@ package com.gamepsychos.puzzler.move;
 
 import java.util.Set;
 
+import com.gamepsychos.puzzler.board.Change;
 import com.gamepsychos.puzzler.board.Location;
 import com.gamepsychos.puzzler.piece.Piece;
 
@@ -50,5 +51,11 @@ public interface MoveResult {
 	 * @throws IllegalMoveException if there is no follow up move
 	 */
 	public Move getFollowUpMove() throws IllegalMoveException;
+	
+	/**
+	 * Returns the {@link Change}s that occurred during this {@link MoveResult}
+	 * @return the {@link Change}s that occurred during this {@link MoveResult}
+	 */
+	public Set<Change> getChanges();
 	
 }

@@ -109,24 +109,20 @@ public class BasicBoard implements Board {
 		return moveFactory;
 	}
 
-	private final void swapPieces(Location a, Location b) {
+	private final MoveResult swapPieces(Location a, Location b) {
+		Set<Change> changes = new HashSet<Change>();
 		Change change0 = new Change(piece[a.getRow()][a.getCol()], ChangeType.MOVE, Collections.singletonList(b));
 		Change change1 = new Change(piece[b.getRow()][b.getCol()], ChangeType.MOVE, Collections.singletonList(a));
-		
+		changes.add(change0);
+		changes.add(change1);
 		Piece temp = piece[a.getRow()][a.getCol()];
 		piece[a.getRow()][a.getCol()] = piece[b.getRow()][b.getCol()];
 		piece[b.getRow()][b.getCol()] = temp;
-		
-		notifyChanges(change0, change1);
-	}
-	
-	private final void notifyChanges(Change ... changes){
-		assert changes != null;
-		Set<Change> message = new HashSet<Change>();
-		for(Change c : changes){
-			message.add(c);
-		}
-		delegate.notifyObservers(new ChangeBoardMessage(message));
+		Set<Location> locations = Collections.emptySet();
+		Set<Drop> drops = Collections.emptySet();
+		Set<Piece> destroyed = Collections.emptySet();
+		Move followupmove = new FollowUpMove();
+		return new BasicMoveResult(locations, followupmove, drops, destroyed, false, changes);
 	}
 	
 	
@@ -140,7 +136,8 @@ public class BasicBoard implements Board {
 
 		if (locations.isEmpty()) {
 			Set<Drop> drops = Collections.emptySet();
-			return new BasicMoveResult(locations, null, drops, pieces, isFollowUp);
+			Set<Change> changes = Collections.emptySet();
+			return new BasicMoveResult(locations, null, drops, pieces, isFollowUp, changes);
 		}
 		
 		Set<Change> changes = new HashSet<Change>();
@@ -165,9 +162,8 @@ public class BasicBoard implements Board {
 			Change drop = new Change(d.getPiece(), type, ls);
 			changes.add(drop);
 		}
-		delegate.notifyObservers(new ChangeBoardMessage(changes));
 		
-		return new BasicMoveResult(locations, new FollowUpMove(), drops, pieces, isFollowUp);
+		return new BasicMoveResult(locations, new FollowUpMove(), drops, pieces, isFollowUp, changes);
 	}
 
 	private final Set<Drop> findDrops() {
@@ -198,10 +194,10 @@ public class BasicBoard implements Board {
 	}
 
 	// Observable Methods
-	private final BasicObservable<BoardMessage> delegate = new BasicObservable<BoardMessage>();
+	private final BasicObservable<MoveResult> delegate = new BasicObservable<MoveResult>();
 
 	@Override
-	public boolean register(Observer<BoardMessage> observer) {
+	public boolean register(Observer<MoveResult> observer) {
 		return delegate.register(observer);
 	}
 
@@ -226,7 +222,8 @@ public class BasicBoard implements Board {
 			Set<Location> emptySet = Collections.emptySet();
 			Set<Drop> drops = Collections.emptySet();
 			Set<Piece> destroyed = Collections.emptySet();
-			return new BasicMoveResult(emptySet, null, drops, destroyed, false);
+			Set<Change> changes = Collections.emptySet();
+			return new BasicMoveResult(emptySet, null, drops, destroyed, false, changes);
 		}
 
 	}
@@ -245,10 +242,8 @@ public class BasicBoard implements Board {
 
 		@Override
 		public MoveResult move() {
-			swapPieces(a, b);
-			MoveResult result = clearBoard(false);
-			Set<MoveResult> singleton = Collections.singleton(result);
-			delegate.notifyObservers(new MoveResultBoardMessage(singleton));
+			MoveResult result = swapPieces(a, b);
+			delegate.notifyObservers(result);
 			return result;
 		}
 
@@ -259,8 +254,7 @@ public class BasicBoard implements Board {
 		@Override
 		public MoveResult move() {
 			MoveResult result = clearBoard(true);
-			Set<MoveResult> singleton = Collections.singleton(result);
-			delegate.notifyObservers(new MoveResultBoardMessage(singleton));
+			delegate.notifyObservers(result);
 			return result;
 		}
 
@@ -273,16 +267,19 @@ public class BasicBoard implements Board {
 		private final Move followUpMove;
 		private final Set<Drop> drops;
 		private final boolean isFollowUp;
+		private final Set<Change> changes;
 
 		private BasicMoveResult(Set<Location> locations, Move followupmove,
-				Set<Drop> drops, Set<Piece> destroyed, boolean isFollowUp) {
+				Set<Drop> drops, Set<Piece> destroyed, boolean isFollowUp, Set<Change> changes) {
 			assert locations != null;
 			assert drops != null;
+			assert changes != null;
 			this.locations = Collections.unmodifiableSet(locations);
 			this.followUpMove = followupmove;
 			this.drops = Collections.unmodifiableSet(drops);
 			this.destroyed = Collections.unmodifiableSet(destroyed);
 			this.isFollowUp = isFollowUp;
+			this.changes = Collections.unmodifiableSet(changes);
 		}
 
 		@Override
@@ -315,48 +312,11 @@ public class BasicBoard implements Board {
 			return isFollowUp;
 		}
 
-	}
-	
-	private static final class ChangeBoardMessage implements BoardMessage {
-
-		private final Set<Change> changes;
-		
-		private ChangeBoardMessage(Set<Change> changes){
-			assert changes != null;
-			this.changes = Collections.unmodifiableSet(changes);
-		}
-		
 		@Override
 		public Set<Change> getChanges() {
 			return changes;
 		}
 
-		@Override
-		public Set<MoveResult> getResults() {
-			return Collections.emptySet();
-		}
-		
 	}
 	
-	private static final class MoveResultBoardMessage implements BoardMessage {
-
-		private final Set<MoveResult> results;
-		
-		private MoveResultBoardMessage(Set<MoveResult> results){
-			assert results != null;
-			this.results = Collections.unmodifiableSet(results);
-		}
-		
-		@Override
-		public Set<Change> getChanges() {
-			return Collections.emptySet();
-		}
-
-		@Override
-		public Set<MoveResult> getResults() {
-			return results;
-		}
-		
-	}
-
 }

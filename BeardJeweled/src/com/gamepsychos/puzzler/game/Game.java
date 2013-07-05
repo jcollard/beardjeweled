@@ -2,10 +2,12 @@ package com.gamepsychos.puzzler.game;
 
 import java.util.Set;
 
+import com.gamepsychos.puzzler.board.Board;
+import com.gamepsychos.puzzler.board.Change;
+import com.gamepsychos.puzzler.game.Game.GameMessage;
+import com.gamepsychos.puzzler.move.MoveResult;
 import com.gamepsychos.puzzler.piece.Piece;
 import com.gamepsychos.util.observer.Observable;
-import com.gamepsychos.puzzler.board.Board;
-import com.gamepsychos.puzzler.game.Game.GameMessage;
 
 /**
  * A {@link Game} contains data on the number of moves a player may
@@ -16,12 +18,19 @@ import com.gamepsychos.puzzler.game.Game.GameMessage;
  */
 public interface Game extends Observable<GameMessage> {
 
-	public static enum GameMessage {
+	public interface GameMessage {
+	
+		public Set<Change> getChanges();
 		
-		MOVES_CHANGED,
-		PIECES_COLLECTED_CHANGED,
-		SCORE_CHANGED,
-		STREAK_CHANGED;
+		public MoveResult getResults();
+		
+		public int getPointsAwarded();
+		
+		public int getMovesChange();
+		
+		public int getPiecesCollected();
+		
+		public int streak();
 		
 	}
 	

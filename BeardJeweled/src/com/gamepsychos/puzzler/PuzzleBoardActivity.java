@@ -40,7 +40,6 @@ public class PuzzleBoardActivity extends Activity {
 		setContentView(layout);
 				
 		
-		System.out.println("Activity created!");
 		player.play(Music.STRUT);
 		player.setMusicVolume(0.33f);
 	}

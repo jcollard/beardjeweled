@@ -11,9 +11,9 @@ import android.animation.Animator.AnimatorListener;
 import android.animation.ValueAnimator;
 import android.animation.ValueAnimator.AnimatorUpdateListener;
 
-import com.gamepsychos.puzzler.board.Board.BoardMessage;
-import com.gamepsychos.puzzler.board.Change;
 import com.gamepsychos.puzzler.board.view.BoardView;
+import com.gamepsychos.puzzler.board.view.GameLayout;
+import com.gamepsychos.puzzler.game.Game.GameMessage;
 import com.gamepsychos.util.observer.Observer;
 
 /**
@@ -22,24 +22,24 @@ import com.gamepsychos.util.observer.Observer;
  *
  */
 public class AnimationHandler implements AnimatorUpdateListener,
-		AnimatorListener, Observer<BoardMessage> {
+		AnimatorListener, Observer<GameMessage> {
 	
-	private final BoardView view;
-	private final Deque<Set<Change>> toAnimate;
+	private final GameLayout view;
+	private final Deque<GameMessage> toAnimate;
 	private final Set<Animator> waiting;
 	private final ChangeAnimationFactory factory;
 	
 	/**
 	 * Create an {@link AnimationHandler} that controls the elements on {@code view}
-	 * @param view the {@link BoardView} to be animated.
+	 * @param view the {@link GameLayout} to be animated.
 	 */
-	public AnimationHandler(BoardView view){
+	public AnimationHandler(GameLayout view){
 		if(view == null)
 			throw new NullPointerException();
 		this.view = view;		
-		this.toAnimate = new LinkedBlockingDeque<Set<Change>>();
+		this.toAnimate = new LinkedBlockingDeque<GameMessage>();
 		this.waiting  = Collections.synchronizedSet(new HashSet<Animator>());
-		this.factory = new ChangeAnimationFactory(this.view);
+		this.factory = new ChangeAnimationFactory(this.view.getBoardView());
 	}
 	
 	/**
@@ -63,14 +63,16 @@ public class AnimationHandler implements AnimatorUpdateListener,
 	}
 	
 	private final void startNext(){
-		Set<Change> changes = toAnimate.pop();
-		for(Change c : changes){
-			ValueAnimator animation = factory.getAnimation(c).getAnimator();
-			animation.addListener(this);
-			animation.addUpdateListener(this);
-			animation.start();
-			waiting.add(animation);
+		if(toAnimate.isEmpty()) return;
+		GameMessage message = toAnimate.pop();
+		MoveResultAnimation animations = new MoveResultAnimation(message, factory, view);
+		for(ValueAnimator animator : animations.getAnimators()){
+			animator.addListener(this);
+			animator.addUpdateListener(this);
+			animator.start();
+			waiting.add(animator);
 		}
+		
 	}
 	
 	private final void animate(){
@@ -82,9 +84,8 @@ public class AnimationHandler implements AnimatorUpdateListener,
 	}
 	
 	@Override
-	public void update(BoardMessage message) {
-		if(message.getChanges().isEmpty()) return;
-		toAnimate.add(message.getChanges());
+	public void update(GameMessage message) {
+		toAnimate.add(message);
 		animate();
 	}
 	
@@ -96,8 +97,7 @@ public class AnimationHandler implements AnimatorUpdateListener,
 	@Override
 	public void onAnimationEnd(Animator animation) {
 		waiting.remove(animation);
-		if(waiting.isEmpty() && !toAnimate.isEmpty())
-			startNext();
+		animate();
 	}
 
 	@Override

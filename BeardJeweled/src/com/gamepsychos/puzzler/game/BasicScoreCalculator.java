@@ -8,7 +8,7 @@ import com.gamepsychos.puzzler.board.Location;
  * <pre>
  * A {@link BasicScoreCalculator} calculates the score using the following
  * formula:
- * (streak+1)*25*(locations.size-2)^2
+ * (streak)*25*(locations.size-2)^2
  * </pre>
  * @author jcollard
  *
@@ -20,7 +20,7 @@ public class BasicScoreCalculator implements ScoreCalculator {
 		if(locations.size() < 3)
 			return 0;
 		int bonus = locations.size()-2;
-		int score = (streak+1)*25*bonus*bonus;
+		int score = streak*25*bonus*bonus;
 		return score;
 	}
 

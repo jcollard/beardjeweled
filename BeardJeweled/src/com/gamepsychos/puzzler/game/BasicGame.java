@@ -5,21 +5,22 @@ import java.util.HashSet;
 import java.util.Set;
 
 import com.gamepsychos.puzzler.board.Board;
-import com.gamepsychos.puzzler.board.Board.BoardMessage;
+import com.gamepsychos.puzzler.board.Change;
 import com.gamepsychos.puzzler.move.MoveResult;
 import com.gamepsychos.puzzler.piece.Piece;
 import com.gamepsychos.util.observer.BasicObservable;
 import com.gamepsychos.util.observer.Observer;
 
 /**
- * A {@link BasicGame} is a simple implementation of {@link Game} that
- * tracks the score through a specified {@link ScoreCalculator}. Additional
- * moves are rewarded to a player who clears 4 or more jewels at the same time.
- * The number awarded is equal to the number of jewels cleared minus 3.
+ * A {@link BasicGame} is a simple implementation of {@link Game} that tracks
+ * the score through a specified {@link ScoreCalculator}. Additional moves are
+ * rewarded to a player who clears 4 or more jewels at the same time. The number
+ * awarded is equal to the number of jewels cleared minus 3.
+ * 
  * @author jcollard
- *
+ * 
  */
-public final class BasicGame implements Game, Observer<BoardMessage> {
+public final class BasicGame implements Game, Observer<MoveResult> {
 
 	private static final int BONUS_THRESHOLD = 3;
 	private int score;
@@ -33,9 +34,13 @@ public final class BasicGame implements Game, Observer<BoardMessage> {
 	/**
 	 * Creates a {@link BasicGame} that allows the user to take {@code moves}
 	 * calculates the score with {@code calculator} and models {@code board}
-	 * @param moves the initial number of moves the player receives
-	 * @param calculator the calculator to use for scoring
-	 * @param board the board to model
+	 * 
+	 * @param moves
+	 *            the initial number of moves the player receives
+	 * @param calculator
+	 *            the calculator to use for scoring
+	 * @param board
+	 *            the board to model
 	 */
 	public BasicGame(int moves, ScoreCalculator calculator, Board board) {
 		if (moves < 0)
@@ -61,60 +66,55 @@ public final class BasicGame implements Game, Observer<BoardMessage> {
 		return Collections.unmodifiableSet(piecesCollected);
 	}
 
-	private final void processResult(MoveResult result) {
+	private final ScoreMessage processResult(MoveResult result) {
 		runStreak(result);
 		runPieces(result);
-		runScore(result);
-		runMoves(result);
+		int points = runScore(result);
+		int moves = runMoves(result);
+		return new ScoreMessage(points, moves, latestStreak, result.destroyed()
+				.size());
 	}
-	
-	private final void runStreak(MoveResult result){
-		if(result.isFollowUpMove()){
+
+	private final void runStreak(MoveResult result) {
+		if (result.isFollowUpMove()) {
 			latestStreak++;
-		}else{
+		} else {
 			latestStreak = 0;
 		}
 	}
 
-	private final void runMoves(MoveResult result) {
+	private final int runMoves(MoveResult result) {
 		int change = 0;
 		if (result.destroyed().size() > BONUS_THRESHOLD) {
 			change = result.destroyed().size() - BONUS_THRESHOLD;
 		}
 
-		if(!result.isFollowUpMove())
+		if (!result.isFollowUpMove())
 			change--;
-		
-		if (change == 0)
-			return;
 
 		movesRemaining += change;
-		delegateObserver.notifyObservers(GameMessage.MOVES_CHANGED);
+		return change;
 
 	}
 
 	private final void runPieces(MoveResult result) {
 		piecesCollected.addAll(result.destroyed());
-		if (!result.destroyed().isEmpty())
-			delegateObserver
-					.notifyObservers(GameMessage.PIECES_COLLECTED_CHANGED);
 	}
 
-	private final void runScore(MoveResult result) {
+	private final int runScore(MoveResult result) {
 		int scoreChange = calculator.getScore(result.removed(), latestStreak);
 		if (scoreChange != 0) {
 			score += scoreChange;
-			delegateObserver.notifyObservers(GameMessage.SCORE_CHANGED);
 		}
+		return scoreChange;
 	}
 
 	@Override
-	public void update(BoardMessage message) {
-		Set<MoveResult> results = message.getResults();
-		if (results.isEmpty())
-			return;
-		for (MoveResult result : results)
-			processResult(result);
+	public void update(MoveResult message) {
+		ScoreMessage score = processResult(message);
+		GameMessage gameMessage = new BasicGameMessage(message.getChanges(),
+				message, score);
+		delegateObserver.notifyObservers(gameMessage);
 	}
 
 	@Override
@@ -135,6 +135,70 @@ public final class BasicGame implements Game, Observer<BoardMessage> {
 	@Override
 	public int getLatestStreak() {
 		return latestStreak;
+	}
+
+	private static final class ScoreMessage {
+		private final int points;
+		private final int moves;
+		private final int streak;
+		private final int jewels;
+
+		private ScoreMessage(int points, int moves, int streak, int jewels) {
+			this.points = points;
+			this.moves = moves;
+			this.streak = streak;
+			this.jewels = jewels;
+		}
+	}
+
+	private static final class BasicGameMessage implements GameMessage {
+
+		private final Set<Change> changes;
+		private final MoveResult results;
+		private final ScoreMessage score;
+
+		private BasicGameMessage(Set<Change> changes, MoveResult results,
+				ScoreMessage score) {
+			assert changes != null;
+			assert results != null;
+			assert score != null;
+
+			this.changes = Collections.unmodifiableSet(changes);
+			this.results = results;
+			this.score = score;
+
+		}
+
+		@Override
+		public Set<Change> getChanges() {
+			return changes;
+		}
+
+		@Override
+		public MoveResult getResults() {
+			return results;
+		}
+
+		@Override
+		public int getPointsAwarded() {
+			return score.points;
+		}
+
+		@Override
+		public int getMovesChange() {
+			return score.moves;
+		}
+
+		@Override
+		public int streak() {
+			return score.streak;
+		}
+
+		@Override
+		public int getPiecesCollected() {
+			return score.jewels;
+		}
+
 	}
 
 }
