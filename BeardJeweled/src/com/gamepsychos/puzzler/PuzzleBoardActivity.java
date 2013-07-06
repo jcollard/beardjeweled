@@ -10,10 +10,10 @@ import com.gamepsychos.puzzler.audio.AudioResource;
 import com.gamepsychos.puzzler.audio.AudioResource.Music;
 import com.gamepsychos.puzzler.board.BasicBoard;
 import com.gamepsychos.puzzler.board.Board;
-import com.gamepsychos.puzzler.board.view.GameLayout;
 import com.gamepsychos.puzzler.game.BasicGame;
 import com.gamepsychos.puzzler.game.BasicScoreCalculator;
 import com.gamepsychos.puzzler.game.Game;
+import com.gamepsychos.puzzler.game.view.GameView;
 import com.gamepsychos.puzzler.piece.BasicPieceFactory;
 import com.gamepsychos.puzzler.piece.PieceFactory;
 import com.gamepsychos.puzzler.piece.view.PieceResources;
@@ -21,7 +21,7 @@ import com.gamepsychos.puzzler.piece.view.PieceResources;
 public class PuzzleBoardActivity extends Activity {
 
 	private AudioResource player;
-	private GameLayout layout;
+	private GameView layout;
 	
 	
 	
@@ -36,7 +36,7 @@ public class PuzzleBoardActivity extends Activity {
 		PieceFactory factory = new BasicPieceFactory(gen);
 		Board gameBoard = new BasicBoard(factory);
 		Game game = new BasicGame(25, new BasicScoreCalculator(), gameBoard);
-		layout = new GameLayout(this, game);
+		layout = new GameView(this, game);
 		setContentView(layout);
 				
 		

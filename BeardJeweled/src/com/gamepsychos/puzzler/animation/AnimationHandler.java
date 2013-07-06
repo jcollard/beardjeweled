@@ -12,8 +12,8 @@ import android.animation.ValueAnimator;
 import android.animation.ValueAnimator.AnimatorUpdateListener;
 
 import com.gamepsychos.puzzler.board.view.BoardView;
-import com.gamepsychos.puzzler.board.view.GameLayout;
 import com.gamepsychos.puzzler.game.Game.GameMessage;
+import com.gamepsychos.puzzler.game.view.GameView;
 import com.gamepsychos.util.observer.Observer;
 
 /**
@@ -24,16 +24,16 @@ import com.gamepsychos.util.observer.Observer;
 public class AnimationHandler implements AnimatorUpdateListener,
 		AnimatorListener, Observer<GameMessage> {
 	
-	private final GameLayout view;
+	private final GameView view;
 	private final Deque<GameMessage> toAnimate;
 	private final Set<Animator> waiting;
 	private final ChangeAnimationFactory factory;
 	
 	/**
 	 * Create an {@link AnimationHandler} that controls the elements on {@code view}
-	 * @param view the {@link GameLayout} to be animated.
+	 * @param view the {@link GameView} to be animated.
 	 */
-	public AnimationHandler(GameLayout view){
+	public AnimationHandler(GameView view){
 		if(view == null)
 			throw new NullPointerException();
 		this.view = view;		

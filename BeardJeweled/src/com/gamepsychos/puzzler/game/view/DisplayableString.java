@@ -1,4 +1,4 @@
-package com.gamepsychos.puzzler.board.view;
+package com.gamepsychos.puzzler.game.view;
 
 import java.util.List;
 

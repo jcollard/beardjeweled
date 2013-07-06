@@ -1,10 +1,11 @@
-package com.gamepsychos.puzzler.board.view;
+package com.gamepsychos.puzzler.game.view;
 
 import android.content.Context;
 import android.view.View;
 import android.widget.RelativeLayout;
 
 import com.gamepsychos.puzzler.animation.AnimationHandler;
+import com.gamepsychos.puzzler.board.view.BoardView;
 import com.gamepsychos.puzzler.game.Game;
 
 /**
@@ -12,7 +13,7 @@ import com.gamepsychos.puzzler.game.Game;
  * @author jcollard
  *
  */
-public class GameLayout extends RelativeLayout {
+public class GameView extends RelativeLayout {
 	
 	private static final float score_space = 0.20f;
 	private static final float board_space = 0.80f;
@@ -24,7 +25,7 @@ public class GameLayout extends RelativeLayout {
 	/**
 	 * A call to this constructor will result in an {@link UnsupportedOperationException}
 	 */
-	public GameLayout(Context context) {
+	public GameView(Context context) {
 		super(context);
 		throw new UnsupportedOperationException();
 	}
@@ -35,7 +36,7 @@ public class GameLayout extends RelativeLayout {
 	 * @param context the {@link Context} for this {@link View}
 	 * @param game the {@link Game} to use as a model
 	 */
-	public GameLayout(Context context, Game game){
+	public GameView(Context context, Game game){
 		super(context);
 		if(game == null)
 			throw new NullPointerException();

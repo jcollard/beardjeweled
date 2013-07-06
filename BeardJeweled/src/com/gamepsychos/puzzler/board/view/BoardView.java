@@ -25,6 +25,7 @@ import com.gamepsychos.puzzler.board.Location;
 import com.gamepsychos.puzzler.board.controller.BoardController;
 import com.gamepsychos.puzzler.board.controller.MoveBoardController;
 import com.gamepsychos.puzzler.game.Game;
+import com.gamepsychos.puzzler.game.view.DisplayableString;
 import com.gamepsychos.puzzler.piece.Piece;
 import com.gamepsychos.puzzler.piece.view.DisplayLocation;
 import com.gamepsychos.puzzler.piece.view.DisplayablePiece;

@@ -14,19 +14,19 @@ import android.graphics.Color;
 import com.gamepsychos.puzzler.audio.AudioResource;
 import com.gamepsychos.puzzler.audio.AudioResource.SFX;
 import com.gamepsychos.puzzler.board.Change;
-import com.gamepsychos.puzzler.board.view.DisplayableString;
-import com.gamepsychos.puzzler.board.view.GameLayout;
 import com.gamepsychos.puzzler.game.Game.GameMessage;
+import com.gamepsychos.puzzler.game.view.DisplayableString;
+import com.gamepsychos.puzzler.game.view.GameView;
 import com.gamepsychos.puzzler.piece.view.DisplayLocation;
 
 public class MoveResultAnimation {
 	
 	private final Set<ValueAnimator> animators;
 	private final GameMessage message;
-	private final GameLayout view;
+	private final GameView view;
 	private final ChangeAnimationFactory factory;
 
-	public MoveResultAnimation(GameMessage message, ChangeAnimationFactory factory, GameLayout view){
+	public MoveResultAnimation(GameMessage message, ChangeAnimationFactory factory, GameView view){
 		if(message == null || factory == null || view == null)
 			throw new NullPointerException();
 		this.message = message;
