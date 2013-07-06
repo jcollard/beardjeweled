@@ -57,7 +57,10 @@ public class MoveBoardController implements BoardController {
 	
 	@Override
 	public boolean onTouch(float left, float top) {
-		if(game.isGameOver()) return false;
+		if(game.isGameOver()){
+			game.startNewGame();
+			return false;
+		}
 
 		Location loc = getLocation(left, top);
 		if(!Boards.inBounds(board, loc))

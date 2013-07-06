@@ -22,6 +22,7 @@ import com.gamepsychos.util.observer.Observer;
  */
 public final class BasicGame implements Game, Observer<MoveResult> {
 
+	private final int startingMoves;
 	private int score;
 	private int movesRemaining;
 	private final Set<Piece> piecesCollected;
@@ -47,6 +48,7 @@ public final class BasicGame implements Game, Observer<MoveResult> {
 		if (calculator == null || board == null)
 			throw new NullPointerException();
 
+		this.startingMoves = moves;
 		this.movesRemaining = moves;
 		this.piecesCollected = new HashSet<Piece>();
 		this.delegateObserver = new BasicObservable<Game.GameMessage>();
@@ -120,6 +122,21 @@ public final class BasicGame implements Game, Observer<MoveResult> {
 		GameMessage gameMessage = new BasicGameMessage(message.getChanges(),
 				message, score, (movesRemaining < 1));
 		delegateObserver.notifyObservers(gameMessage);
+		if(message.isStartNewGame())
+			init();
+		
+	}
+	
+	@Override
+	public void startNewGame() {
+		board.resetBoard();
+	}
+	
+	private final void init(){
+		score = 0;
+		latestStreak = 0;
+		movesRemaining = startingMoves;
+		piecesCollected.clear();
 	}
 
 	@Override
@@ -212,5 +229,7 @@ public final class BasicGame implements Game, Observer<MoveResult> {
 		}
 
 	}
+
+	
 
 }

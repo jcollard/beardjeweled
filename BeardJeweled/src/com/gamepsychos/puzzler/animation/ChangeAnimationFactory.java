@@ -44,6 +44,8 @@ public class ChangeAnimationFactory {
 			return new CreateAnimation(c);
 		case DESTROY:
 			return new DestroyAnimation(c);
+		case REMOVE:
+			return new RemoveAnimation(c);
 		}
 		return null;
 	}
@@ -92,6 +94,23 @@ public class ChangeAnimationFactory {
 			float left = -PieceResources.getSize();
 			float top = view.getHeight()+PieceResources.getSize();
 			DisplayablePiece piece = view.getPiece(change.getPiece());
+			ValueAnimator animation = piece.createAnimator(Collections.singletonList(new DisplayLocation(left, top)));
+			animation.setDuration(500);
+			return animation;
+		}
+	}
+	
+	private final class RemoveAnimation extends BasicAnimation {
+
+		private RemoveAnimation(Change change){
+			super(change);
+		}
+
+		@Override
+		public ValueAnimator getAnimator() {
+			float top = view.getHeight()+PieceResources.getSize();
+			DisplayablePiece piece = view.getPiece(change.getPiece());
+			float left = piece.getLocation().getLeft();
 			ValueAnimator animation = piece.createAnimator(Collections.singletonList(new DisplayLocation(left, top)));
 			animation.setDuration(500);
 			return animation;

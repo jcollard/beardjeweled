@@ -41,4 +41,9 @@ public interface Board extends Observable<MoveResult> {
 	 */
 	public MoveFactory getMoveFactory();
 	
+	/**
+	 * Resets all of the locations on this {@link Board}
+	 */
+	public void resetBoard();
+	
 }

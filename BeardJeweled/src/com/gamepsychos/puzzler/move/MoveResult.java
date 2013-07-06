@@ -57,6 +57,12 @@ public interface MoveResult {
 	 * @return the {@link Change}s that occurred during this {@link MoveResult}
 	 */
 	public Set<Change> getChanges();
+	
+	/**
+	 * Returns {@code true} if this is the start of a new game and {@code false} otherwise.
+	 * @return {@code true} if this is the start of a new game and {@code false} otherwise.
+	 */
+	public boolean isStartNewGame();
 
 	
 }

@@ -48,4 +48,6 @@ public interface Game extends Observable<GameMessage> {
 	
 	public boolean isGameOver();
 	
+	public void startNewGame();
+	
 }

@@ -12,6 +12,7 @@ import android.animation.ValueAnimator;
 import android.graphics.Color;
 
 import com.gamepsychos.puzzler.audio.AudioResource;
+import com.gamepsychos.puzzler.audio.AudioResource.Music;
 import com.gamepsychos.puzzler.audio.AudioResource.SFX;
 import com.gamepsychos.puzzler.board.Change;
 import com.gamepsychos.puzzler.game.Game.GameMessage;
@@ -37,12 +38,21 @@ public class MoveResultAnimation {
 	}
 	
 	private final void initSet(){
+		animateNewGame();
 		animateChanges();
 		animateCombo();
 		animatePoints();
 		animateBonusMoves();
 		addScoreChangeAnimator();
 		animateGameOver();
+	}
+	
+	private final void animateNewGame(){
+		if(message.getResults().isStartNewGame()){
+			ValueAnimator animator = getDummyAnimator();
+			animator.addListener(new NewGame());
+			animators.add(animator);
+		}
 	}
 	
 	private final void animateGameOver(){
@@ -230,6 +240,17 @@ public class MoveResultAnimation {
 		
 	}
 	
+	private final class NewGame extends AnimatorListenerAdapter {
+		
+		@Override
+		public void onAnimationStart(Animator animation) {
+			view.getBoardView().clearAllStrings();
+			view.getScoreView().syncWithGame();
+			AudioResource resource = AudioResource.getInstance(view.getContext());
+			resource.play(Music.STRUT);
+		}
+		
+	}
 
 	
 

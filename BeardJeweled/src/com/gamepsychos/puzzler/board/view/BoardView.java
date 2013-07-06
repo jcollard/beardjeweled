@@ -207,10 +207,14 @@ public class BoardView extends View {
 	 * @param piece the {@link Piece} to add
 	 * @param loc the {@link Location} of the {@code Piece}
 	 */
-	public void addPiece(Piece piece, Location loc) {
+	public final void addPiece(Piece piece, Location loc) {
 		DisplayLocation displayLocation = new DisplayLocation(loc);
 		DisplayablePiece dp = new DisplayablePiece(piece, displayLocation, this);
 		displayedPieces.put(piece, dp);
+	}
+	
+	public final void clearAllStrings(){
+		displayedStrings.clear();
 	}
 
 	/**

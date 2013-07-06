@@ -80,12 +80,12 @@ public class BasicBoard implements Board {
 			for(int c = 0; c < cols; c++)
 				piece[r][c] = pieceFactory.createPiece();
 		
-		Move clearBoard = new FollowUpMove();
+		FollowUpMove clearBoard = new FollowUpMove();
 		MoveResult result;
 		do{
-			result = clearBoard.move();
+			result = clearBoard.silentMove();
 			if(result.followUpMove())
-				clearBoard = result.getFollowUpMove();
+				clearBoard = (FollowUpMove)result.getFollowUpMove();
 		} while(result.followUpMove());
 	}
 
@@ -122,7 +122,7 @@ public class BasicBoard implements Board {
 		Set<Drop> drops = Collections.emptySet();
 		Set<Piece> destroyed = Collections.emptySet();
 		Move followupmove = new FollowUpMove();
-		return new BasicMoveResult(locations, followupmove, drops, destroyed, false, changes);
+		return new BasicMoveResult(locations, followupmove, drops, destroyed, false, changes, false);
 	}
 	
 	
@@ -137,7 +137,7 @@ public class BasicBoard implements Board {
 		if (locations.isEmpty()) {
 			Set<Drop> drops = Collections.emptySet();
 			Set<Change> changes = Collections.emptySet();
-			return new BasicMoveResult(locations, null, drops, pieces, isFollowUp, changes);
+			return new BasicMoveResult(locations, null, drops, pieces, isFollowUp, changes, false);
 		}
 		
 		Set<Change> changes = new HashSet<Change>();
@@ -163,7 +163,7 @@ public class BasicBoard implements Board {
 			changes.add(drop);
 		}
 		
-		return new BasicMoveResult(locations, new FollowUpMove(), drops, pieces, isFollowUp, changes);
+		return new BasicMoveResult(locations, new FollowUpMove(), drops, pieces, isFollowUp, changes, false);
 	}
 
 	private final Set<Drop> findDrops() {
@@ -214,6 +214,57 @@ public class BasicBoard implements Board {
 		}
 
 	}
+	
+	private final class ResetMove implements Move {
+
+		@Override
+		public MoveResult move() {
+			
+			Set<Change> changes = new HashSet<Change>();
+			for(int r = 0; r < rows; r++){
+				for(int c = 0; c < cols; c++){
+					Piece p = piece[r][c];
+					List<Location> locations = Collections.singletonList(Location.getLocation(0, 0));
+					Change remove = new Change(p, ChangeType.REMOVE, locations);
+					changes.add(remove);
+				}
+			}
+			
+			Set<Piece> destroyed = Collections.emptySet();
+			Set<Location> locations = Collections.emptySet();
+			Set<Drop> drops = Collections.emptySet();
+			
+			return new BasicMoveResult(locations, new SetupMove(), drops, destroyed, false, changes, false);
+		}
+		
+	}
+	
+	private final class SetupMove implements Move {
+
+		@Override
+		public MoveResult move() {
+
+			Set<Change> changes = new HashSet<Change>();
+			init();
+			for(int r = 0; r < rows; r++){
+				for(int c = 0; c < cols; c++){
+					Piece p = piece[r][c];
+					List<Location> locations = new LinkedList<Location>();
+					locations.add(Location.getLocation(-1, c));
+					locations.add(Location.getLocation(r, c));
+					Change create = new Change(p, ChangeType.CREATE, locations);
+					changes.add(create);
+				}
+			}
+			
+			Set<Piece> destroyed = Collections.emptySet();
+			Set<Location> locations = Collections.emptySet();
+			Set<Drop> drops = Collections.emptySet();
+			
+			return new BasicMoveResult(locations, new SetupMove(), drops, destroyed, false, changes, true);
+		}
+		
+	}
 
 	private final class IgnoreMove implements Move {
 
@@ -223,7 +274,7 @@ public class BasicBoard implements Board {
 			Set<Drop> drops = Collections.emptySet();
 			Set<Piece> destroyed = Collections.emptySet();
 			Set<Change> changes = Collections.emptySet();
-			return new BasicMoveResult(emptySet, null, drops, destroyed, false, changes);
+			return new BasicMoveResult(emptySet, null, drops, destroyed, false, changes, false);
 		}
 
 	}
@@ -257,9 +308,15 @@ public class BasicBoard implements Board {
 			delegate.notifyObservers(result);
 			return result;
 		}
+		
+		private MoveResult silentMove() {
+			MoveResult result = clearBoard(true);
+			return result;
+		}
 
 	}
 
+	//TODO Create Builder w/ default values
 	private static final class BasicMoveResult implements MoveResult {
 
 		private final Set<Piece> destroyed;
@@ -268,9 +325,11 @@ public class BasicBoard implements Board {
 		private final Set<Drop> drops;
 		private final boolean isFollowUp;
 		private final Set<Change> changes;
+		private final boolean startNewGame;
 
+		//TODO Create Builder w/ default values
 		private BasicMoveResult(Set<Location> locations, Move followupmove,
-				Set<Drop> drops, Set<Piece> destroyed, boolean isFollowUp, Set<Change> changes) {
+				Set<Drop> drops, Set<Piece> destroyed, boolean isFollowUp, Set<Change> changes, boolean startNewGame) {
 			assert locations != null;
 			assert drops != null;
 			assert changes != null;
@@ -280,6 +339,7 @@ public class BasicBoard implements Board {
 			this.destroyed = Collections.unmodifiableSet(destroyed);
 			this.isFollowUp = isFollowUp;
 			this.changes = Collections.unmodifiableSet(changes);
+			this.startNewGame = startNewGame;
 		}
 
 		@Override
@@ -316,7 +376,20 @@ public class BasicBoard implements Board {
 		public Set<Change> getChanges() {
 			return changes;
 		}
+		
+		@Override
+		public boolean isStartNewGame() {
+			return startNewGame;
+		}
 
+	}
+
+	@Override
+	public final void resetBoard() {
+		MoveResult resetMove = new ResetMove().move();
+		delegate.notifyObservers(resetMove); 
+		MoveResult setupMove = new SetupMove().move();
+		delegate.notifyObservers(setupMove);
 	}
 	
 }

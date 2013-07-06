@@ -15,7 +15,8 @@ public final class Change {
 	public static enum ChangeType {
 		MOVE,
 		CREATE,
-		DESTROY;
+		DESTROY,
+		REMOVE;
 	}
 
 	private final Piece piece;
