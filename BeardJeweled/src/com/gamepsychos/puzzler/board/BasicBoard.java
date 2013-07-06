@@ -47,7 +47,7 @@ public class BasicBoard implements Board {
 	 *            the {@link PieceFactory} to generate {@link Pieces}
 	 */
 	public BasicBoard(PieceFactory pieceFactory) {
-		this(pieceFactory, 7, 6);
+		this(pieceFactory, 8, 6);
 
 	}
 

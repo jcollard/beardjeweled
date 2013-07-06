@@ -15,8 +15,8 @@ import com.gamepsychos.puzzler.game.Game;
  */
 public class GameView extends RelativeLayout {
 	
-	private static final float score_space = 0.20f;
-	private static final float board_space = 0.80f;
+	private static final float score_space = 0.07f;
+	private static final float board_space = 0.93f;
 	
 	private final BoardView boardview;
 	private final ScoreView scoreview;

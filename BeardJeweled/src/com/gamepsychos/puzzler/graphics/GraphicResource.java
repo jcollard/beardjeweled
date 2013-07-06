@@ -76,4 +76,22 @@ public class GraphicResource {
 		return icon.image;
 	}
 	
+	public static enum Border {
+		GREY_DASHED(R.drawable.border),
+		HORIZONTAL_BAR(R.drawable.horizontal_bar);
+		
+		private final int resource_id;
+		private Bitmap image;
+		
+		private Border(int resource_id){
+			this.resource_id = resource_id;
+		}
+	}
+	
+	public Bitmap getBoard(Border border){
+		if(border.image == null)
+			border.image = BitmapFactory.decodeResource(context.getResources(), border.resource_id);
+		return border.image;
+	}
+	
 }

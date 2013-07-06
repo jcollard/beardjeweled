@@ -1,6 +1,7 @@
 package com.gamepsychos.puzzler.game.view;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Typeface;
@@ -8,6 +9,8 @@ import android.view.View;
 
 import com.gamepsychos.puzzler.game.Game;
 import com.gamepsychos.puzzler.game.Game.GameMessage;
+import com.gamepsychos.puzzler.graphics.GraphicResource;
+import com.gamepsychos.puzzler.graphics.GraphicResource.Border;
 import com.gamepsychos.puzzler.graphics.GraphicResource.Icon;
 import com.gamepsychos.puzzler.piece.view.DisplayLocation;
 
@@ -19,7 +22,7 @@ import com.gamepsychos.puzzler.piece.view.DisplayLocation;
 public class ScoreView extends View {
 
 	private static final DisplayLocation NO_OFFSET = new DisplayLocation(0, 0);
-	private static final float ICON_SCALE = 0.33f;
+	private static final float ICON_SCALE = .8f;
 	
 	private final Game game;
 	private final Paint paint;
@@ -29,6 +32,9 @@ public class ScoreView extends View {
 	private DisplayLocation jewels_offset;
 	private DisplayLocation score_offset;
 	private DisplayLocation moves_offset;
+	private static final float border_width = 20f;
+	private float border_offset;
+	private Bitmap border;
 	
 	/**
 	 * A call to this constructor will result in an {@link UnsupportedOperationException}
@@ -80,6 +86,11 @@ public class ScoreView extends View {
 	protected void onDraw(Canvas canvas) {
 		super.onDraw(canvas);
 		
+		if(border != null){
+			canvas.drawBitmap(border, 0, border_offset, paint);
+			canvas.drawBitmap(border,  0,  0, paint);
+		}
+		
 		movesView.display(canvas, paint, moves_offset);
 		
 		jewelsCollectedView.display(canvas, paint, jewels_offset);
@@ -115,15 +126,18 @@ public class ScoreView extends View {
 		super.onSizeChanged(w, h, oldw, oldh);
 		float icon_size_ratio = h*(1/(h/(h*ICON_SCALE)));
 		float icon_align_bottom = h-icon_size_ratio;
-			
-		paint.setTextSize(h*0.2f);
+		GraphicResource resource = GraphicResource.getResource(getContext());
+		Bitmap source = resource.getBoard(Border.HORIZONTAL_BAR);
+		border = Bitmap.createScaledBitmap(source, w, (int)border_width, false);
+		border_offset = h-border.getHeight();
+		paint.setTextSize(h*0.5f);
 		movesView.changeSize(w, h);
-		moves_offset = new DisplayLocation(0, icon_align_bottom);
+		moves_offset = new DisplayLocation(border_width, icon_align_bottom - border_width);
 		jewelsCollectedView.changeSize(w, h);
-		float fourth = w/4f;
-		jewels_offset = new DisplayLocation(fourth, icon_align_bottom);
+		float fourth = (w/4)*1.25f;
+		jewels_offset = new DisplayLocation(border_width + fourth, icon_align_bottom - border_width);
 		scoreView.changeSize(w, h);
-		score_offset = new DisplayLocation(fourth*2, icon_align_bottom);
+		score_offset = new DisplayLocation(border_width + fourth*2, icon_align_bottom - border_width);
 	}
 
 }
