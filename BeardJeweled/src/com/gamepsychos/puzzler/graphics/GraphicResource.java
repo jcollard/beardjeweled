@@ -59,7 +59,8 @@ public class GraphicResource {
 	
 	public static enum Icon {
 		MOVES(R.drawable.moves),
-		JEWELS(R.drawable.blue_saphire);
+		JEWELS(R.drawable.collected),
+		SCORE(R.drawable.score);
 		
 		private final int resource_id;
 		private Bitmap image;
