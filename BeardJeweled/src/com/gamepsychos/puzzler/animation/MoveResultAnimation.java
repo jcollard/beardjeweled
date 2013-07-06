@@ -120,7 +120,17 @@ public class MoveResultAnimation {
 			DisplayableString string = getDisplayString(""+points, Color.YELLOW);
 			ValueAnimator animation = getStringAnimation(string);
 			animators.add(animation);
+			animation = getDummyAnimator();
+			animation.addListener(new SoundListener(SFX.WOOSH));
+			animators.add(animation);
 		}
+	}
+	
+	private final ValueAnimator getDummyAnimator(){
+		ValueAnimator animator = new ValueAnimator();
+		animator.setFloatValues(1.0f);
+		animator.setDuration(1);
+		return animator;
 	}
 	
 	private final DisplayLocation calculateCenter(float left, float top, int length){
@@ -140,10 +150,8 @@ public class MoveResultAnimation {
 	
 	//Adds a dummy animator to inform when the score should be updated.
 	private final void addScoreChangeAnimator(){
-		ValueAnimator animator = new ValueAnimator();
+		ValueAnimator animator = getDummyAnimator();
 		animator.addListener(new UpdateScoreListener());
-		animator.setFloatValues(1.0f);
-		animator.setDuration(1);
 		animators.add(animator);
 	}
 	
@@ -202,6 +210,22 @@ public class MoveResultAnimation {
 		@Override
 		public void onAnimationStart(Animator animation) {
 			view.getScoreView().updateScore(message);
+		}
+		
+	}
+	
+	private final class SoundListener extends AnimatorListenerAdapter {
+		private final SFX sound;
+		
+		private SoundListener(SFX sound){
+			assert sound != null;
+			this.sound = sound;
+		}
+		
+		@Override
+		public void onAnimationStart(Animator animation) {
+			AudioResource resource = AudioResource.getInstance(view.getContext());
+			resource.play(sound);
 		}
 		
 	}

@@ -19,6 +19,8 @@ public class BasicObservable<E> implements Observable<E> {
 	
 	@Override
 	public boolean register(Observer<E> observer) {
+		if(observer == null)
+			throw new NullPointerException();
 		return observers.add(observer);
 	}
 	

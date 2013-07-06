@@ -4,12 +4,8 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
-import android.animation.Animator;
-import android.animation.Animator.AnimatorListener;
 import android.animation.ValueAnimator;
 
-import com.gamepsychos.puzzler.audio.AudioResource;
-import com.gamepsychos.puzzler.audio.AudioResource.SFX;
 import com.gamepsychos.puzzler.board.Change;
 import com.gamepsychos.puzzler.board.Location;
 import com.gamepsychos.puzzler.board.view.BoardView;
@@ -24,14 +20,12 @@ import com.gamepsychos.puzzler.piece.view.PieceResources;
  */
 public class ChangeAnimationFactory {
 
-	private final AudioResource audioResource;
 	private final BoardView view;
 	
 	public ChangeAnimationFactory(BoardView view){
 		if(view == null)
 			throw new NullPointerException();
 		this.view = view;
-		this.audioResource = AudioResource.getInstance(view.getContext());
 	}
 
 	/**
@@ -87,7 +81,7 @@ public class ChangeAnimationFactory {
 		
 	}
 	
-	private final class DestroyAnimation extends BasicAnimation implements AnimatorListener {
+	private final class DestroyAnimation extends BasicAnimation {
 
 		private DestroyAnimation(Change change){
 			super(change);
@@ -100,22 +94,7 @@ public class ChangeAnimationFactory {
 			DisplayablePiece piece = view.getPiece(change.getPiece());
 			ValueAnimator animation = piece.createAnimator(Collections.singletonList(new DisplayLocation(left, top)));
 			animation.setDuration(500);
-			animation.addListener(this);
 			return animation;
-		}
-
-		@Override
-		public void onAnimationCancel(Animator animation) {}
-
-		@Override
-		public void onAnimationEnd(Animator animation) {}
-
-		@Override
-		public void onAnimationRepeat(Animator animation) {}
-
-		@Override
-		public void onAnimationStart(Animator animation) {
-			audioResource.play(SFX.WOOSH);		
 		}
 	}
 	

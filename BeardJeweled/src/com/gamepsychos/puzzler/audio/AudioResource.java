@@ -51,7 +51,6 @@ public class AudioResource {
 	
 	private final Context context;
 	private MediaPlayer currentBackground;
-	private MediaPlayer sfx;
 	
 	private float music_volume = 1.0f;
 	private float sfx_volume = 1.0f;
@@ -81,15 +80,14 @@ public class AudioResource {
 	public void play(SFX sound){
 		if(sound == null)
 			throw new NullPointerException();
-		if(sfx != null) return;
-		sfx = MediaPlayer.create(context, sound.resource_id);
+		final MediaPlayer sfx = MediaPlayer.create(context, sound.resource_id);
+		sfx.setVolume(sfx_volume, sfx_volume);
 		sfx.start();
 		sfx.setOnCompletionListener(new OnCompletionListener() {
 			
 			@Override
 			public void onCompletion(MediaPlayer mp) {
 				sfx.release();
-				sfx = null;
 			}
 		});
 	}
@@ -97,11 +95,29 @@ public class AudioResource {
 	public void play(SFX first, SFX ... sound){
 		if(sound == null)
 			throw new NullPointerException();
-		if(sfx != null) return;
-		sfx = MediaPlayer.create(context, first.resource_id); 
-		for(SFX s : sound)
-			sfx.setNextMediaPlayer(MediaPlayer.create(context, s.resource_id));
+		
+		final MediaPlayer sfx = MediaPlayer.create(context, first.resource_id);
+		sfx.setVolume(sfx_volume, sfx_volume);
+		for(SFX s : sound){
+			final MediaPlayer next = MediaPlayer.create(context, s.resource_id);
+			next.setVolume(sfx_volume, sfx_volume);
+			sfx.setNextMediaPlayer(next);
+			next.setOnCompletionListener(new OnCompletionListener() {
+				
+				@Override
+				public void onCompletion(MediaPlayer mp) {
+					next.release();
+				}
+			});
+		}
 		sfx.start();
+		sfx.setOnCompletionListener(new OnCompletionListener() {
+			
+			@Override
+			public void onCompletion(MediaPlayer mp) {
+				sfx.release();
+			}
+		});
 	}
 	
 	private final void stopBackgroundMusic(){
