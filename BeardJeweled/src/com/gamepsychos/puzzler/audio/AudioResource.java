@@ -37,7 +37,10 @@ public class AudioResource {
 	}
 	
 	public static enum SFX {
-		WOOSH(R.raw.woosh);
+		WOOSH(R.raw.woosh),
+		BOING(R.raw.boing),
+		SCRATCH(R.raw.scratch),
+		SAD_TROMBONE(R.raw.sad_trombone);
 		
 		private final int resource_id;
 		
@@ -64,7 +67,7 @@ public class AudioResource {
 			resource = new AudioResource(context);
 			audioLookup.put(context, resource);
 		}
-		return new AudioResource(context);
+		return resource;
 	}
 	
 	private AudioResource(Context context){
@@ -89,6 +92,16 @@ public class AudioResource {
 				sfx = null;
 			}
 		});
+	}
+	
+	public void play(SFX first, SFX ... sound){
+		if(sound == null)
+			throw new NullPointerException();
+		if(sfx != null) return;
+		sfx = MediaPlayer.create(context, first.resource_id); 
+		for(SFX s : sound)
+			sfx.setNextMediaPlayer(MediaPlayer.create(context, s.resource_id));
+		sfx.start();
 	}
 	
 	private final void stopBackgroundMusic(){

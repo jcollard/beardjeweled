@@ -49,7 +49,7 @@ public class BoardView extends View {
 	private DisplayLocation offset = new DisplayLocation(0,0);
 	private final Bitmap background;
 	private final Paint stringPaint;
-	private final float string_size;
+	private float string_size;
 
 	
 	/**
@@ -158,8 +158,16 @@ public class BoardView extends View {
 		super.onSizeChanged(w, h, oldw, oldh);
 		animationHandler.cancelAllAnimations();
 		calculateNewSize(w, h);
+		calculateNewFontSize(w, h);
 		updateAllPieces();
 		invalidate();
+	}
+	
+	private final void calculateNewFontSize(int width, int height){
+		
+		string_size = height*0.10f;
+		stringPaint.setTextSize(string_size);
+		
 	}
 	
 	private final void updateAllPieces(){

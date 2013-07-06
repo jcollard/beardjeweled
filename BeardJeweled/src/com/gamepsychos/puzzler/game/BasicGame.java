@@ -22,7 +22,6 @@ import com.gamepsychos.util.observer.Observer;
  */
 public final class BasicGame implements Game, Observer<MoveResult> {
 
-	private static final int BONUS_THRESHOLD = 3;
 	private int score;
 	private int movesRemaining;
 	private final Set<Piece> piecesCollected;
@@ -65,6 +64,11 @@ public final class BasicGame implements Game, Observer<MoveResult> {
 	public final Set<Piece> getPiecesCollected() {
 		return Collections.unmodifiableSet(piecesCollected);
 	}
+	
+	@Override
+	public final boolean isGameOver(){
+		return movesRemaining < 1;
+	}
 
 	private final ScoreMessage processResult(MoveResult result) {
 		runStreak(result);
@@ -85,12 +89,13 @@ public final class BasicGame implements Game, Observer<MoveResult> {
 
 	private final int runMoves(MoveResult result) {
 		int change = 0;
-		if (result.destroyed().size() > BONUS_THRESHOLD) {
-			change = result.destroyed().size() - BONUS_THRESHOLD;
+		if (result.isFollowUpMove() && result.followUpMove()){//result.destroyed().size() > BONUS_THRESHOLD) {
+			change += latestStreak-1;// = result.destroyed().size() - BONUS_THRESHOLD;
 		}
 
-		if (!result.isFollowUpMove())
+		if (!result.isFollowUpMove()){ 
 			change--;
+		}
 
 		movesRemaining += change;
 		return change;
@@ -113,7 +118,7 @@ public final class BasicGame implements Game, Observer<MoveResult> {
 	public void update(MoveResult message) {
 		ScoreMessage score = processResult(message);
 		GameMessage gameMessage = new BasicGameMessage(message.getChanges(),
-				message, score);
+				message, score, (movesRemaining < 1));
 		delegateObserver.notifyObservers(gameMessage);
 	}
 
@@ -156,9 +161,10 @@ public final class BasicGame implements Game, Observer<MoveResult> {
 		private final Set<Change> changes;
 		private final MoveResult results;
 		private final ScoreMessage score;
+		private final boolean gameover;
 
 		private BasicGameMessage(Set<Change> changes, MoveResult results,
-				ScoreMessage score) {
+				ScoreMessage score, boolean gameover) {
 			assert changes != null;
 			assert results != null;
 			assert score != null;
@@ -166,6 +172,7 @@ public final class BasicGame implements Game, Observer<MoveResult> {
 			this.changes = Collections.unmodifiableSet(changes);
 			this.results = results;
 			this.score = score;
+			this.gameover = gameover;
 
 		}
 
@@ -197,6 +204,11 @@ public final class BasicGame implements Game, Observer<MoveResult> {
 		@Override
 		public int getPiecesCollected() {
 			return score.jewels;
+		}
+
+		@Override
+		public boolean isGameOver() {
+			return gameover;
 		}
 
 	}

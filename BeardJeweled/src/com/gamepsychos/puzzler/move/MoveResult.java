@@ -57,5 +57,6 @@ public interface MoveResult {
 	 * @return the {@link Change}s that occurred during this {@link MoveResult}
 	 */
 	public Set<Change> getChanges();
+
 	
 }

@@ -40,12 +40,15 @@ public final class R {
         public static final int puzzle_board=0x7f080000;
     }
     public static final class raw {
-        public static final int drumgroove_loop=0x7f040000;
-        public static final int hip_loop=0x7f040001;
-        public static final int jungle_loop=0x7f040002;
-        public static final int percussion_loop=0x7f040003;
-        public static final int strut=0x7f040004;
-        public static final int woosh=0x7f040005;
+        public static final int boing=0x7f040000;
+        public static final int drumgroove_loop=0x7f040001;
+        public static final int hip_loop=0x7f040002;
+        public static final int jungle_loop=0x7f040003;
+        public static final int percussion_loop=0x7f040004;
+        public static final int sad_trombone=0x7f040005;
+        public static final int scratch=0x7f040006;
+        public static final int strut=0x7f040007;
+        public static final int woosh=0x7f040008;
     }
     public static final class string {
         public static final int action_settings=0x7f060001;

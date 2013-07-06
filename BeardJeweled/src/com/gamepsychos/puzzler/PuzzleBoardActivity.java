@@ -35,7 +35,7 @@ public class PuzzleBoardActivity extends Activity {
 		Random gen = new Random(0);
 		PieceFactory factory = new BasicPieceFactory(gen);
 		Board gameBoard = new BasicBoard(factory);
-		Game game = new BasicGame(25, new BasicScoreCalculator(), gameBoard);
+		Game game = new BasicGame(1, new BasicScoreCalculator(), gameBoard);
 		layout = new GameLayout(this, game);
 		setContentView(layout);
 				

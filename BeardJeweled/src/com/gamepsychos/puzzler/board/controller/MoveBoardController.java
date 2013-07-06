@@ -57,7 +57,7 @@ public class MoveBoardController implements BoardController {
 	
 	@Override
 	public boolean onTouch(float left, float top) {
-		if(game.getMovesRemaining() < 1) return false;
+		if(game.isGameOver()) return false;
 
 		Location loc = getLocation(left, top);
 		if(!Boards.inBounds(board, loc))
@@ -75,7 +75,7 @@ public class MoveBoardController implements BoardController {
 
 	@Override
 	public boolean onRelease(float left, float top) {
-		if(game.getMovesRemaining() < 1) return false;
+		if(game.isGameOver()) return false;
 		if(selected == null)
 			return false;
 		Location location = getLocation(left, top);
@@ -100,7 +100,7 @@ public class MoveBoardController implements BoardController {
 
 	@Override
 	public boolean onMove(float left, float top) {
-		if(game.getMovesRemaining() < 1) return false;
+		if(game.isGameOver()) return false;
 		if(selected == null)
 			return false;
 		DisplayablePiece p = view.getPiece(selected.selectedPiece);

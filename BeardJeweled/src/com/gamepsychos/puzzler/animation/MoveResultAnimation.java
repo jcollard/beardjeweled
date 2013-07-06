@@ -2,6 +2,8 @@ package com.gamepsychos.puzzler.animation;
 
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
 
 import android.animation.Animator;
@@ -9,6 +11,8 @@ import android.animation.AnimatorListenerAdapter;
 import android.animation.ValueAnimator;
 import android.graphics.Color;
 
+import com.gamepsychos.puzzler.audio.AudioResource;
+import com.gamepsychos.puzzler.audio.AudioResource.SFX;
 import com.gamepsychos.puzzler.board.Change;
 import com.gamepsychos.puzzler.board.view.DisplayableString;
 import com.gamepsychos.puzzler.board.view.GameLayout;
@@ -38,25 +42,62 @@ public class MoveResultAnimation {
 		animatePoints();
 		animateBonusMoves();
 		addScoreChangeAnimator();
+		animateGameOver();
+	}
+	
+	private final void animateGameOver(){
+		if(message.isGameOver() && !message.getResults().followUpMove()){
+			DisplayableString gameOver = getDisplayString("GAME OVER", Color.MAGENTA);
+			float shift = view.getBoardView().getWidth()/10f;
+			float left = gameOver.getLocation().getLeft() - shift;
+			float right = gameOver.getLocation().getLeft() + shift;
+			float top = gameOver.getLocation().getTop();
+			float stopTop = view.getBoardView().getHeight()/8f;
+			DisplayLocation center = gameOver.getLocation();
+			DisplayLocation l = new DisplayLocation(left, top);
+			DisplayLocation r = new DisplayLocation(right, top);
+			List<DisplayLocation> locations = new LinkedList<DisplayLocation>();
+			for(int i = 0; i < 3; i++){
+				locations.add(l);
+				locations.add(r);
+			}
+			locations.add(center);
+			
+			ValueAnimator animation = gameOver.createAnimator(locations);
+			animation.setDuration(500);
+			animation.setStartDelay(100);
+			ValueAnimator animation2 = gameOver.createAnimator(Collections.singletonList(new DisplayLocation(center.getLeft(), stopTop)));
+			animation2.setStartDelay(1100);
+			animation2.setDuration(3200);
+			animation.addListener(new GameOverListener(gameOver));
+			animators.add(animation2);
+			animators.add(animation);
+		}
 	}
 	
 	private final void animateCombo(){
 		int streak = message.getStreak()-1;
 		if(!message.getResults().followUpMove() && streak > 1){
-			ValueAnimator animation = getStringAnimation(streak + "-STREAK", Color.RED);
+			DisplayableString string = getDisplayString(streak + "-STREAK", Color.RED);
+			ValueAnimator animation = getStringAnimation(string);
 			animation.setStartDelay(100);
 			animation.setDuration(800);
 			animators.add(animation);
 		}
 	}
 	
-	private final ValueAnimator getStringAnimation(String string, int color){
+	private final DisplayableString getDisplayString(String string, int color){
 		float left = view.getBoardView().getWidth()/2f;
 		float top = view.getBoardView().getHeight()/2f;
-		float distanceUp = view.getBoardView().getHeight()/4f;
 		DisplayLocation start = calculateCenter(left, top, string.length());
-		DisplayLocation end = new DisplayLocation(start.getLeft(), start.getTop()-distanceUp);
 		DisplayableString ds = new DisplayableString(string, start, view.getBoardView(), color);
+		return ds;
+	}
+	
+	private final ValueAnimator getStringAnimation(DisplayableString ds){
+		DisplayLocation start = ds.getLocation();
+		float distanceUp = view.getBoardView().getHeight()/4f;
+		DisplayLocation end = new DisplayLocation(start.getLeft(), start.getTop()-distanceUp);
 		ValueAnimator animation = ds.createAnimator(Collections.singletonList(end));
 		animation.addListener(new StringListener(ds));
 		return animation;
@@ -65,7 +106,8 @@ public class MoveResultAnimation {
 	private final void animateBonusMoves(){
 		int moves = message.getMovesChange();
 		if(moves > 0){
-			ValueAnimator animation = getStringAnimation("+" + moves, Color.GREEN);
+			DisplayableString string = getDisplayString("+" + moves, Color.GREEN);
+			ValueAnimator animation = getStringAnimation(string);
 			animation.setStartDelay(100);
 			animation.setDuration(500);
 			animators.add(animation);
@@ -75,7 +117,8 @@ public class MoveResultAnimation {
 	private final void animatePoints(){
 		int points = message.getPointsAwarded();
 		if(points > 0){
-			ValueAnimator animation = getStringAnimation(""+points, Color.YELLOW);
+			DisplayableString string = getDisplayString(""+points, Color.YELLOW);
+			ValueAnimator animation = getStringAnimation(string);
 			animators.add(animation);
 		}
 	}
@@ -133,6 +176,25 @@ public class MoveResultAnimation {
 		}
 		
 	}
+	
+	private final class GameOverListener extends AnimatorListenerAdapter {
+		
+		private final DisplayableString string;
+		
+		private GameOverListener(DisplayableString string){
+			assert string != null;
+			this.string = string;
+		}
+		
+		@Override
+		public void onAnimationStart(Animator animation) {
+			view.getBoardView().addDisplayableString(string);
+			
+			AudioResource resource = AudioResource.getInstance(view.getContext());
+			resource.pauseMusic();
+			resource.play(SFX.SCRATCH, SFX.SAD_TROMBONE);
+		}
+	} 
 	
 	private final class UpdateScoreListener extends AnimatorListenerAdapter {
 	

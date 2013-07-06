@@ -32,6 +32,8 @@ public interface Game extends Observable<GameMessage> {
 		
 		public int getStreak();
 		
+		public boolean isGameOver();
+		
 	}
 	
 	public int getMovesRemaining();
@@ -43,5 +45,7 @@ public interface Game extends Observable<GameMessage> {
 	public int getLatestStreak();
 	
 	public Board getBoard();
+	
+	public boolean isGameOver();
 	
 }

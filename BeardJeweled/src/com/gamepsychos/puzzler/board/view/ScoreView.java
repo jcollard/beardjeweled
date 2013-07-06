@@ -54,8 +54,7 @@ public class ScoreView extends View {
 	@Override
 	protected void onDraw(Canvas canvas) {
 		super.onDraw(canvas);
-		float fontSize = 64;
-		paint.setTextSize(fontSize);
+		float fontSize = paint.getTextSize();
 		
 		
 		canvas.drawText("Moves Remaining: " + moves, 0, fontSize, paint);
@@ -78,6 +77,12 @@ public class ScoreView extends View {
 		jewels = game.getPiecesCollected().size();
 		moves = game.getMovesRemaining();
 		invalidate();
+	}
+
+	@Override
+	protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+		super.onSizeChanged(w, h, oldw, oldh);
+		paint.setTextSize(h*0.2f);
 	}
 
 }
