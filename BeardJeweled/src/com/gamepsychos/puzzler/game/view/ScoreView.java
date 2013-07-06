@@ -32,7 +32,7 @@ public class ScoreView extends View {
 	private DisplayLocation jewels_offset;
 	private DisplayLocation score_offset;
 	private DisplayLocation moves_offset;
-	private static final float border_width = 20f;
+	private float border_width = 20f;
 	private float border_offset;
 	private Bitmap border;
 	
@@ -128,9 +128,10 @@ public class ScoreView extends View {
 		float icon_align_bottom = h-icon_size_ratio;
 		GraphicResource resource = GraphicResource.getResource(getContext());
 		Bitmap source = resource.getBoard(Border.HORIZONTAL_BAR);
+		border_width = h*.1f;
 		border = Bitmap.createScaledBitmap(source, w, (int)border_width, false);
 		border_offset = h-border.getHeight();
-		paint.setTextSize(h*0.5f);
+		paint.setTextSize(w*0.049f);
 		movesView.changeSize(w, h);
 		moves_offset = new DisplayLocation(border_width, icon_align_bottom - border_width);
 		jewelsCollectedView.changeSize(w, h);

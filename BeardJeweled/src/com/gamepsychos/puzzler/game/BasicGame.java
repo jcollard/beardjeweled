@@ -91,7 +91,7 @@ public final class BasicGame implements Game, Observer<MoveResult> {
 
 	private final int runMoves(MoveResult result) {
 		int change = 0;
-		if (result.isFollowUpMove() && result.followUpMove()){//result.destroyed().size() > BONUS_THRESHOLD) {
+		if (result.isFollowUpMove() && result.followUpMove() && latestStreak > 2){//result.destroyed().size() > BONUS_THRESHOLD) {
 			change += latestStreak-1;// = result.destroyed().size() - BONUS_THRESHOLD;
 		}
 

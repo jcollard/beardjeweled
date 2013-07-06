@@ -51,6 +51,7 @@ public class MoveResultAnimation {
 		if(message.getResults().isStartNewGame()){
 			ValueAnimator animator = getDummyAnimator();
 			animator.addListener(new NewGame());
+			animator.addListener(new SyncListener());
 			animators.add(animator);
 		}
 	}
@@ -88,7 +89,24 @@ public class MoveResultAnimation {
 	private final void animateCombo(){
 		int streak = message.getStreak()-1;
 		if(!message.getResults().followUpMove() && streak > 1){
-			DisplayableString string = getDisplayString(streak + "-STREAK", Color.RED);
+			String name = null;
+			switch(streak){
+			case 2:
+				name = "DUECE";
+				break;
+			case 3:
+				name = "TRIPLE";
+				break;
+			case 4:
+				name = "DOUBLE DEUCE";
+				break;
+			case 5:
+				name = "HIGH FIVE";
+				break;
+			default:
+				name  = streak + "-STREAK";				
+			}
+			DisplayableString string = getDisplayString(name, Color.RED);
 			ValueAnimator animation = getStringAnimation(string);
 			animation.setStartDelay(100);
 			animation.setDuration(800);
@@ -245,13 +263,19 @@ public class MoveResultAnimation {
 		@Override
 		public void onAnimationStart(Animator animation) {
 			view.getBoardView().clearAllStrings();
-			view.getScoreView().syncWithGame();
 			AudioResource resource = AudioResource.getInstance(view.getContext());
 			resource.play(Music.STRUT);
 		}
 		
 	}
 
+	private final class SyncListener extends AnimatorListenerAdapter {
+		@Override
+		public void onAnimationEnd(Animator animation) {
+			view.getScoreView().syncWithGame();
+		}
+	}
+	
 	
 
 }

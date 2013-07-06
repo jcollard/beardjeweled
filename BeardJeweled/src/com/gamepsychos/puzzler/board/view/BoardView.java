@@ -166,7 +166,7 @@ public class BoardView extends View {
 	
 	private final void calculateNewFontSize(int width, int height){
 		
-		string_size = height*0.10f;
+		string_size = width*0.13f;
 		stringPaint.setTextSize(string_size);
 		
 	}
